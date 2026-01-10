@@ -3,996 +3,1648 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أستاذ أسامة مليحي</title>
+    <meta name="theme-color" content="#1e293b">
+    <title>MOSTAFA THANAWEIA AMMA</title>
+    <link rel="manifest" id="manifest-placeholder">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Scheherazade+New:wght@400;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #475569;
+        }
+
         body {
-            font-family: 'Cairo', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
             min-height: 100vh;
-            overflow-x: hidden;
         }
-        
-        #loadingScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-        
-        #loadingScreen.hide {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .loading-logo {
-            font-family: 'Scheherazade New', serif;
-            font-size: 3.5rem;
-            color: #fff;
-            margin-bottom: 30px;
-            font-weight: 700;
-            opacity: 0;
-            animation: fadeInScale 1.5s ease forwards;
-        }
-        
-        @keyframes fadeInScale {
-            0% {
-                opacity: 0;
-                transform: scale(0.5) translateY(20px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-        
-        .loading-credit {
-            font-size: 1.1rem;
-            color: rgba(255,255,255,0.9);
-            margin-top: 15px;
-            opacity: 0;
-            animation: fadeIn 0.8s ease 2s forwards;
-            position: relative;
-            font-weight: 600;
-            letter-spacing: 3px;
-            direction: ltr;
-        }
-        
-        .loading-credit span {
-            display: inline-block;
-            animation: letterGlowWave 0.6s ease-in-out;
-            animation-fill-mode: forwards;
-        }
-        
-        .loading-credit span:nth-child(1) { animation-delay: 2.5s; }
-        .loading-credit span:nth-child(2) { animation-delay: 2.6s; }
-        .loading-credit span:nth-child(3) { animation-delay: 2.7s; }
-        .loading-credit span:nth-child(4) { animation-delay: 2.8s; }
-        .loading-credit span:nth-child(5) { animation-delay: 2.9s; }
-        .loading-credit span:nth-child(6) { animation-delay: 3.0s; }
-        .loading-credit span:nth-child(7) { animation-delay: 3.1s; }
-        .loading-credit span:nth-child(8) { animation-delay: 3.2s; }
-        .loading-credit span:nth-child(9) { animation-delay: 3.3s; }
-        .loading-credit span:nth-child(10) { animation-delay: 3.4s; }
-        .loading-credit span:nth-child(11) { animation-delay: 3.5s; }
-        .loading-credit span:nth-child(12) { animation-delay: 3.6s; }
-        .loading-credit span:nth-child(13) { animation-delay: 3.7s; }
-        
-        @keyframes letterGlowWave {
-            0% {
-                text-shadow: 0 0 5px rgba(255,255,255,0.5);
-            }
-            50% {
-                text-shadow: 
-                    0 0 15px rgba(255,255,255,1),
-                    0 0 30px rgba(255,215,0,0.9),
-                    0 0 45px rgba(255,215,0,0.6);
-            }
-            100% {
-                text-shadow: 0 0 5px rgba(255,255,255,0.5);
-            }
-        }
-        
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            margin-top: 30px;
-            animation: fadeIn 0.8s ease 2s forwards, spin 1s linear 2s infinite;
-        }
-        
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        #mainApp {
-            display: none;
-        }
-        
-        #mainApp.show {
-            display: block;
-            animation: fadeInMain 0.5s ease;
-        }
-        
-        @keyframes fadeInMain {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        header {
-            background: rgba(255,255,255,0.95);
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-family: 'Scheherazade New', serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2a5298;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .credits {
-            font-size: 0.85rem;
-            color: #666;
-            direction: ltr;
-        }
-        
-        .role-selection {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 20px;
-        }
-        
-        .role-title {
-            text-align: center;
-            color: white;
-            font-size: 2rem;
-            margin-bottom: 40px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .role-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .role-card {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-        
-        .role-card:hover {
-            transform: translateY(-10px);
-        }
-        
-        .role-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-        
-        .role-card h2 {
-            color: #2a5298;
-            margin-bottom: 15px;
-        }
-        
-        .role-card p {
-            color: #666;
-        }
-        
-        .dashboard {
-            display: none;
+
+        .container {
             max-width: 1200px;
-            margin: 30px auto;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Auth Screen */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 20px;
         }
-        
-        .dashboard.active {
-            display: block;
+
+        .auth-box {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
-        
-        .dashboard-header {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
+
+        .logo {
+            text-align: center;
             margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-        
-        .back-btn {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
+
+        .logo h1 {
+            font-size: 26px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-weight: 700;
         }
-        
-        .upload-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+
+        .logo p {
+            color: var(--text-secondary);
+            font-size: 14px;
         }
-        
-        .upload-section h2 {
-            color: #2a5298;
+
+        .form-group {
             margin-bottom: 20px;
         }
-        
-        .upload-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
+
         .form-group label {
-            font-weight: 600;
-            color: #333;
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
         }
-        
-        .form-group input, .form-group textarea, .form-group select {
-            padding: 12px;
-            border: 2px solid #ddd;
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1rem;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s;
         }
-        
+
         .form-group textarea {
+            min-height: 100px;
             resize: vertical;
-            min-height: 80px;
+            font-family: inherit;
         }
-        
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        
-        .help-text {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        .upload-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
             color: white;
             border: none;
-            padding: 15px;
             border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1.1rem;
+            font-size: 16px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-        
-        .upload-btn:disabled {
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
-        
-        .category-tabs {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            justify-content: center;
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            margin-top: 10px;
         }
-        
-        .category-tab {
-            padding: 12px 30px;
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            color: #666;
+
+        .btn-secondary:hover {
+            background: var(--border);
         }
-        
-        .category-tab:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+        .btn-success {
+            background: var(--success);
         }
-        
-        .category-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
+
+        .btn-success:hover {
+            background: #059669;
         }
-        
-        .lessons-list {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+
+        .btn-danger {
+            background: var(--danger);
         }
-        
-        .lessons-list h2 {
-            color: #2a5298;
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .error-message, .success-message {
+            padding: 12px;
+            border-radius: 8px;
             margin-bottom: 20px;
+            font-size: 14px;
         }
-        
-        .lesson-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: #fca5a5;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: #6ee7b7;
+        }
+
+        .text-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .text-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            padding: 15px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            border-radius: 12px;
+        }
+
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-right: 4px solid #667eea;
         }
-        
-        .lesson-item.nahw {
-            border-right-color: #3498db;
+
+        .header h2 {
+            font-size: 22px;
+            color: var(--accent);
         }
-        
-        .lesson-item.adab {
-            border-right-color: #e74c3c;
-        }
-        
-        .lesson-item.balagha {
-            border-right-color: #2ecc71;
-        }
-        
-        .lesson-info h3 {
-            color: #2a5298;
-            margin-bottom: 5px;
-        }
-        
-        .lesson-category {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 5px;
-        }
-        
-        .lesson-category.nahw {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .lesson-category.adab {
-            background: #ffebee;
-            color: #c62828;
-        }
-        
-        .lesson-category.balagha {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        
-        .lesson-info p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .lesson-actions {
+
+        .user-info {
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 15px;
         }
-        
-        .delete-btn, .download-btn, .view-btn {
-            padding: 8px 20px;
+
+        .user-email {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: var(--danger);
+            color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s;
         }
-        
-        .delete-btn {
-            background: #e74c3c;
-            color: white;
+
+        .btn-logout:hover {
+            background: #dc2626;
         }
-        
-        .download-btn {
-            background: #3498db;
-            color: white;
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: var(--bg-secondary);
+            padding: 10px;
+            border-radius: 12px;
+            flex-wrap: wrap;
         }
-        
-        .view-btn {
-            background: #2ecc71;
-            color: white;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        
-        .info-box {
-            background: #e3f2fd;
-            border-right: 4px solid #2196f3;
-            padding: 15px;
+
+        .nav-tab {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 20px;
+            background: var(--bg-tertiary);
+            border: none;
             border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: var(--border);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-size: 20px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Question Item */
+        .question-item {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-right: 4px solid var(--accent);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .question-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-subject {
+            background: var(--accent);
+            color: white;
+        }
+
+        .badge-important {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-error {
+            background: var(--danger);
+            color: white;
+        }
+
+        .badge-stage {
+            background: var(--success);
+            color: white;
+        }
+
+        .question-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 6px 14px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-note {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-note:hover {
+            background: #d97706;
+        }
+
+        .note-box {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            color: var(--warning);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .note-text {
+            color: var(--text-primary);
+            white-space: pre-wrap;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
-        
-        .info-box h3 {
-            color: #1976d2;
-            margin-bottom: 10px;
+
+        .modal-header h3 {
+            color: var(--accent);
+            font-size: 20px;
         }
-        
-        .info-box ol {
-            margin-right: 20px;
-            color: #555;
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Review Section */
+        .review-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .review-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .review-question {
+            font-size: 20px;
             line-height: 1.8;
+            margin-bottom: 25px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
+
+        .review-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .review-actions button {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px 24px;
+            font-size: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* Subject Filter */
+        .subject-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .filter-btn:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Mobile Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            padding: 10px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .bottom-nav-content {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .bottom-nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .bottom-nav-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .bottom-nav-item:hover:not(.active) {
+            background: var(--bg-tertiary);
+        }
+
+        /* Charts */
+        .chart-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            height: 12px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s;
+            border-radius: 8px;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .lesson-item {
+            .container {
+                padding: 15px;
+                padding-bottom: 80px;
+            }
+
+            .auth-box {
+                padding: 30px 20px;
+            }
+
+            .logo h1 {
+                font-size: 22px;
+            }
+
+            .nav-tabs {
+                display: none;
+            }
+
+            .bottom-nav {
+                display: block;
+            }
+
+            .header h2 {
+                font-size: 18px;
+            }
+
+            .user-email {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .question-header {
                 flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
             }
-            
-            .category-tabs {
-                gap: 10px;
+
+            .review-card {
+                padding: 25px 20px;
             }
-            
-            .category-tab {
-                padding: 10px 20px;
-                font-size: 0.9rem;
+
+            .review-question {
+                font-size: 18px;
             }
+
+            .review-actions {
+                flex-direction: column;
+            }
+
+            .review-actions button {
+                width: 100%;
+            }
+        }
+
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 3px solid var(--bg-tertiary);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div id="loadingScreen">
-        <div class="loading-logo">أستاذ أسامة مليحي</div>
-        <div class="loading-credit">by <span>M</span><span>o</span><span>s</span><span>t</span><span>a</span><span>f</span><span>a</span> <span>A</span><span>h</span><span>m</span><span>e</span><span>d</span></div>
-        <div class="loading-spinner"></div>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-box">
+            <div class="logo">
+                <h1>MOSTAFA THANAWEIA AMMA</h1>
+                <p>نظام المراجعة الذكية للثانوية العامة</p>
+            </div>
+
+            <div id="authMessage"></div>
+
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="loginEmail" placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                </div>
+                <button class="btn" onclick="login()">تسجيل الدخول</button>
+                <button class="btn btn-secondary" onclick="loginWithGoogle()" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
+                        <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.9181H37.4434C36.9055 31.8988 35.177 34.5356 32.6461 36.2111V42.2078H40.3801C44.9217 38.0278 47.532 31.8547 47.532 24.5528Z" fill="#4285F4"/>
+                        <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.3888 42.2078L32.6549 36.2111C30.5031 37.675 27.7252 38.5039 24.4888 38.5039C18.2275 38.5039 12.9187 34.2798 11.0139 28.6006H3.03296V34.7825C7.10718 42.8868 15.4056 48.0016 24.48 48.0016Z" fill="#34A853"/>
+                        <path d="M11.0051 28.6006C9.99973 25.6199 9.99973 22.3922 11.0051 19.4115V13.2296H3.03298C-0.371021 20.0112 -0.371021 28.0009 3.03298 34.7825L11.0051 28.6006Z" fill="#FBBC04"/>
+                        <path d="M24.48 9.49932C27.9016 9.44641 31.2086 10.7339 33.6866 13.0973L40.5387 6.24523C36.2 2.17101 30.4414 -0.068932 24.48 0.00161733C15.4055 0.00161733 7.10718 5.11644 3.03296 13.2296L11.005 19.4115C12.901 13.7235 18.2187 9.49932 24.48 9.49932Z" fill="#EA4335"/>
+                    </svg>
+                    تسجيل الدخول بواسطة Google
+                </button>
+                <a href="#" class="text-link" onclick="showRegister(); return false;">ليس لديك حساب؟ سجل الآن</a>
+            </div>
+
+            <div id="registerForm" class="hidden">
+                <div class="form-group">
+                    <label>الاسم</label>
+                    <input type="text" id="registerName" placeholder="أدخل اسمك">
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="registerEmail" placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="registerPassword" placeholder="••••••••">
+                </div>
+                <button class="btn" onclick="register()">إنشاء حساب</button>
+                <button class="btn btn-secondary" onclick="loginWithGoogle()" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
+                        <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.9181H37.4434C36.9055 31.8988 35.177 34.5356 32.6461 36.2111V42.2078H40.3801C44.9217 38.0278 47.532 31.8547 47.532 24.5528Z" fill="#4285F4"/>
+                        <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.3888 42.2078L32.6549 36.2111C30.5031 37.675 27.7252 38.5039 24.4888 38.5039C18.2275 38.5039 12.9187 34.2798 11.0139 28.6006H3.03296V34.7825C7.10718 42.8868 15.4056 48.0016 24.48 48.0016Z" fill="#34A853"/>
+                        <path d="M11.0051 28.6006C9.99973 25.6199 9.99973 22.3922 11.0051 19.4115V13.2296H3.03298C-0.371021 20.0112 -0.371021 28.0009 3.03298 34.7825L11.0051 28.6006Z" fill="#FBBC04"/>
+                        <path d="M24.48 9.49932C27.9016 9.44641 31.2086 10.7339 33.6866 13.0973L40.5387 6.24523C36.2 2.17101 30.4414 -0.068932 24.48 0.00161733C15.4055 0.00161733 7.10718 5.11644 3.03296 13.2296L11.005 19.4115C12.901 13.7235 18.2187 9.49932 24.48 9.49932Z" fill="#EA4335"/>
+                    </svg>
+                    تسجيل بواسطة Google
+                </button>
+                <a href="#" class="text-link" onclick="showLogin(); return false;">لديك حساب؟ سجل الدخول</a>
+            </div>
+        </div>
     </div>
 
-    <div id="mainApp">
-        <header>
-            <div class="logo">
-                <div class="logo-icon" onclick="teacherIconClick()">أ</div>
-                <span>أستاذ أسامة مليحي</span>
-            </div>
-            <div class="credits">by Mostafa Ahmed</div>
-        </header>
-
-        <div id="roleSelection" class="role-selection">
-            <h1 class="role-title">أستاذ أسامة مليحي - اللغة العربية</h1>
-            <div class="role-cards">
-                <div class="role-card" onclick="checkStudentName()">
-                    <div class="role-icon">🎓</div>
-                    <h2>دخول الطلاب</h2>
-                    <p>عرض وتحميل الدروس والمواد التعليمية</p>
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <div class="header">
+            <div class="header-content">
+                <h2 id="headerTitle">MOSTAFA THANAWEIA AMMA</h2>
+                <div class="user-info">
+                    <span class="user-email" id="userEmail"></span>
+                    <button class="btn-logout" onclick="logout()">تسجيل الخروج</button>
                 </div>
             </div>
         </div>
-        
-        <div id="studentNameModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 40px; border-radius: 15px; max-width: 400px; width: 90%;">
-                <h2 style="color: #2a5298; margin-bottom: 20px; text-align: center;">مرحباً بك! 👋</h2>
-                <p style="text-align: center; margin-bottom: 20px; color: #666;">من فضلك أدخل اسمك للمتابعة</p>
-                <form onsubmit="saveStudentName(event)" style="display: flex; flex-direction: column; gap: 15px;">
-                    <div class="form-group">
-                        <input type="text" id="studentNameInput" required placeholder="اكتب اسمك هنا" style="text-align: center;">
-                    </div>
-                    <button type="submit" class="upload-btn">دخول</button>
-                </form>
-            </div>
-        </div>
-        
-        <div id="teacherLoginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 40px; border-radius: 15px; max-width: 400px; width: 90%;">
-                <h2 style="color: #2a5298; margin-bottom: 20px; text-align: center;">دخول المعلم</h2>
-                <form onsubmit="teacherLogin(event)" style="display: flex; flex-direction: column; gap: 15px;">
-                    <div class="form-group">
-                        <label>كلمة المرور</label>
-                        <input type="password" id="teacherPassword" required placeholder="أدخل كلمة المرور">
-                    </div>
-                    <button type="submit" class="upload-btn">دخول</button>
-                    <button type="button" class="back-btn" onclick="closeTeacherLogin()">إلغاء</button>
-                </form>
-                <p id="loginError" style="color: #e74c3c; margin-top: 15px; text-align: center; display: none;">كلمة المرور غير صحيحة!</p>
-            </div>
-        </div>
 
-        <div id="teacherDashboard" class="dashboard">
-            <div class="dashboard-header">
-                <h1>لوحة تحكم المعلم</h1>
-                <button class="back-btn" onclick="backToSelection()">رجوع</button>
+        <div class="container">
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('home')">الرئيسية</button>
+                <button class="nav-tab" onclick="showTab('add')">إضافة سؤال</button>
+                <button class="nav-tab" onclick="showTab('review')">المراجعة</button>
+                <button class="nav-tab" onclick="showTab('gallery')">معرض الأسئلة</button>
+                <button class="nav-tab" onclick="showTab('stats')">الإحصائيات</button>
             </div>
 
-            <div class="upload-section">
-                <h2>إضافة درس جديد</h2>
-                
-                <div class="info-box">
-                    <h3>📌 كيفية إضافة الدرس:</h3>
-                    <ol>
-                        <li>ارفع ملف PDF على Google Drive</li>
-                        <li>اضغط كليك يمين → مشاركة</li>
-                        <li>اختر "أي شخص لديه الرابط"</li>
-                        <li>انسخ الرابط والصقه أدناه</li>
-                    </ol>
+            <!-- Home Tab -->
+            <div id="homeTab" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalQuestions">0</div>
+                        <div class="stat-label">إجمالي الأسئلة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayReview">0</div>
+                        <div class="stat-label">مراجعة اليوم</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="errorCount">0</div>
+                        <div class="stat-label">أسئلة الأخطاء</div>
+                    </div>
                 </div>
-                
-                <form class="upload-form" onsubmit="addLesson(event)">
+
+                <div class="card">
+                    <h3>نظرة عامة</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                        مرحباً بك في نظام المراجعة الذكية! هذا التطبيق يساعدك على تنظيم مراجعتك باستخدام تقنية التكرار المتباعد.
+                    </p>
+                    <div class="chart-container">
+                        <h4 style="margin-bottom: 10px;">توزيع الأسئلة حسب المادة</h4>
+                        <div id="subjectDistribution"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Question Tab -->
+            <div id="addTab" class="tab-content hidden">
+                <div class="card">
+                    <h3>إضافة سؤال جديد</h3>
+                    
                     <div class="form-group">
-                        <label>الفرع</label>
-                        <select id="lessonCategory" required>
-                            <option value="">اختر الفرع</option>
-                            <option value="nahw">نحو 📘</option>
-                            <option value="adab">أدب 📕</option>
-                            <option value="balagha">بلاغة 📗</option>
+                        <label>نوع السؤال</label>
+                        <select id="questionType">
+                            <option value="مهم">مهم</option>
+                            <option value="خطأ">خطأ</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>عنوان الدرس</label>
-                        <input type="text" id="lessonTitle" required placeholder="مثال: الفعل الماضي">
-                    </div>
-                    <div class="form-group">
-                        <label>وصف الدرس</label>
-                        <textarea id="lessonDesc" placeholder="وصف مختصر (اختياري)"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>رابط Google Drive</label>
-                        <input type="url" id="driveLink" required placeholder="https://drive.google.com/file/d/...">
-                        <p class="help-text">الصق رابط الملف من Google Drive</p>
-                    </div>
-                    <button type="submit" class="upload-btn" id="addBtn">إضافة الدرس</button>
-                </form>
+                    <button class="btn" onclick="addQuestion()">إضافة السؤال</button>
+                </div>
             </div>
 
-            <div class="lessons-list">
-                <h2>الدروس المضافة</h2>
-                
-                <div class="category-tabs">
-                    <div class="category-tab active" onclick="filterTeacherLessons('all')">
-                        الكل
-                    </div>
-                    <div class="category-tab" onclick="filterTeacherLessons('nahw')">
-                        📘 نحو
-                    </div>
-                    <div class="category-tab" onclick="filterTeacherLessons('adab')">
-                        📕 أدب
-                    </div>
-                    <div class="category-tab" onclick="filterTeacherLessons('balagha')">
-                        📗 بلاغة
+            <!-- Review Tab -->
+            <div id="reviewTab" class="tab-content hidden">
+                <div class="review-container">
+                    <div id="reviewContent" class="review-card">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p style="margin-top: 15px; color: var(--text-secondary);">جاري تحميل الأسئلة...</p>
+                        </div>
                     </div>
                 </div>
-                
-                <div id="teacherLessonsList"></div>
             </div>
-            
-            <div class="lessons-list" style="margin-top: 30px;">
-                <h2>الطلاب المسجلين 👥</h2>
-                <div id="studentsList"></div>
+
+            <!-- Gallery Tab -->
+            <div id="galleryTab" class="tab-content hidden">
+                <div class="card">
+                    <h3>🎨 معرض الأسئلة</h3>
+                    
+                    <div class="subject-filter">
+                        <button class="filter-btn active" onclick="filterGallery('all')">الكل</button>
+                        <button class="filter-btn" onclick="filterGallery('أحياء وجيولوجيا')">أحياء</button>
+                        <button class="filter-btn" onclick="filterGallery('كيمياء')">كيمياء</button>
+                        <button class="filter-btn" onclick="filterGallery('فيزياء')">فيزياء</button>
+                        <button class="filter-btn" onclick="filterGallery('عربي')">عربي</button>
+                        <button class="filter-btn" onclick="filterGallery('إنجليزي')">إنجليزي</button>
+                    </div>
+
+                    <div id="galleryList">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="statsTab" class="tab-content hidden">
+                <div class="card">
+                    <h3>إحصائيات تفصيلية</h3>
+                    <div id="detailedStats">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="studentDashboard" class="dashboard">
-            <div class="dashboard-header">
-                <h1 id="studentWelcome">دروس اللغة العربية</h1>
-                <button class="back-btn" onclick="backToSelection()">رجوع</button>
-            </div>
-
-            <div class="lessons-list">
-                <h2>جميع الدروس</h2>
-                
-                <div class="category-tabs">
-                    <div class="category-tab" onclick="filterStudentLessons('nahw')">
-                        📘 نحو
-                    </div>
-                    <div class="category-tab" onclick="filterStudentLessons('adab')">
-                        📕 أدب
-                    </div>
-                    <div class="category-tab" onclick="filterStudentLessons('balagha')">
-                        📗 بلاغة
-                    </div>
-                </div>
-                
-                <div id="studentLessonsList"></div>
+        <!-- Bottom Navigation (Mobile) -->
+        <div class="bottom-nav">
+            <div class="bottom-nav-content">
+                <button class="bottom-nav-item active" onclick="showTab('home')">الرئيسية</button>
+                <button class="bottom-nav-item" onclick="showTab('add')">إضافة</button>
+                <button class="bottom-nav-item" onclick="showTab('review')">مراجعة</button>
+                <button class="bottom-nav-item" onclick="showTab('gallery')">المعرض</button>
+                <button class="bottom-nav-item" onclick="showTab('stats')">إحصائيات</button>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    <!-- Note Modal -->
+    <div id="noteModal" class="modal-overlay hidden" onclick="closeNoteModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>✏️ ملاحظة على السؤال</h3>
+                <button class="modal-close" onclick="closeNoteModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>السؤال</label>
+                <div id="modalQuestionText" style="padding: 12px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 15px; color: var(--text-secondary); font-size: 14px;"></div>
+            </div>
+            <div class="form-group">
+                <label>الملاحظة</label>
+                <textarea id="noteInput" placeholder="اكتب ملاحظتك هنا..." style="min-height: 150px;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-success" onclick="saveNote()" style="flex: 1;">💾 حفظ الملاحظة</button>
+                <button class="btn btn-secondary" onclick="closeNoteModal()" style="flex: 1;">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyAryWnbBrNCLnZG05YWMxJ67FxlxG35JPE",
-            authDomain: "arabic-5d9e8.firebaseapp.com",
-            projectId: "arabic-5d9e8",
-            storageBucket: "arabic-5d9e8.firebasestorage.app",
-            messagingSenderId: "436575213688",
-            appId: "1:436575213688:web:923ac67e843edf27cf358d",
-            measurementId: "G-Z72K0Q1G6K"
+            apiKey: "AIzaSyDBVpn-vbthc5MFoVD3bwocGgc3kSI3E9g",
+            authDomain: "thanweia.firebaseapp.com",
+            projectId: "thanweia",
+            storageBucket: "thanweia.firebasestorage.app",
+            messagingSenderId: "817290566986",
+            appId: "1:817290566986:web:1330c6236d1106ab9075b3"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        let lessons = [];
-        let students = [];
-        let currentStudentName = '';
-        let currentTeacherFilter = 'all';
-        let currentStudentFilter = 'nahw';
-        const TEACHER_PASSWORD = "osama2025";
-        let clickCount = 0;
-        let clickTimer;
+        let currentUser = null;
+        let currentGalleryFilter = 'all';
+        let currentReviewQuestion = null;
+        let reviewQueue = [];
+        let currentNoteQuestionId = null;
 
-        const categoryNames = {
-            nahw: 'نحو',
-            adab: 'أدب',
-            balagha: 'بلاغة'
+        // Maximum review stage (7 stages: 0-6)
+        const MAX_REVIEW_STAGE = 6;
+
+        // PWA Manifest
+        const manifestData = {
+            name: "MOSTAFA THANAWEIA AMMA",
+            short_name: "Thanaweia",
+            description: "نظام المراجعة الذكية للثانوية العامة",
+            start_url: "/",
+            display: "standalone",
+            background_color: "#0f172a",
+            theme_color: "#1e293b",
+            icons: [{
+                src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%233b82f6' width='100' height='100'/%3E%3Ctext x='50' y='60' font-size='50' text-anchor='middle' fill='white' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E",
+                sizes: "512x512",
+                type: "image/svg+xml"
+            }]
         };
+        
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
 
-        function convertLink(link) {
-            let id = null;
-            if (link.includes('/file/d/')) id = link.split('/file/d/')[1].split('/')[0];
-            else if (link.includes('id=')) id = link.split('id=')[1].split('&')[0];
-            
-            if (id) return {
-                view: 'https://drive.google.com/file/d/' + id + '/preview',
-                download: 'https://drive.google.com/uc?export=download&id=' + id
+        // AUTH GUARD - Critical: Check authentication state
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                
+                const displayName = user.displayName || user.email.split('@')[0];
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('headerTitle').textContent = `مرحباً ${displayName} 👋`;
+                
+                loadUserData();
+                checkUserProfile(user);
+            } else {
+                currentUser = null;
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+            }
+        });
+
+        async function checkUserProfile(user) {
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists || !userDoc.data().name) {
+                    const name = prompt('مرحباً! الرجاء إدخال اسمك:');
+                    if (name && name.trim()) {
+                        await db.collection('users').doc(user.uid).set({
+                            name: name.trim(),
+                            email: user.email,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                        
+                        await user.updateProfile({ displayName: name.trim() });
+                        document.getElementById('headerTitle').textContent = `مرحباً ${name.trim()} 👋`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking user profile:', error);
+            }
+        }
+
+        // Authentication Functions
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            clearAuthMessage();
+        }
+
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            clearAuthMessage();
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showAuthMessage('الرجاء إدخال البريد الإلكتروني وكلمة المرور', 'error');
+                return;
+            }
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                showAuthMessage(getErrorMessage(error.code), 'error');
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (!name || !email || !password) {
+                showAuthMessage('الرجاء إدخال جميع البيانات', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAuthMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+                return;
+            }
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await userCredential.user.updateProfile({ displayName: name });
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showAuthMessage('تم إنشاء الحساب بنجاح!', 'success');
+            } catch (error) {
+                showAuthMessage(getErrorMessage(error.code), 'error');
+            }
+        }
+
+        async function loginWithGoogle() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({
+                    prompt: 'select_account'
+                });
+                
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                await db.collection('users').doc(user.uid).set({
+                    name: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+            } catch (error) {
+                if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                    showAuthMessage(getErrorMessage(error.code), 'error');
+                }
+            }
+        }
+
+        function logout() {
+            auth.signOut();
+        }
+
+        function showAuthMessage(message, type) {
+            const messageDiv = document.getElementById('authMessage');
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            messageDiv.textContent = message;
+        }
+
+        function clearAuthMessage() {
+            document.getElementById('authMessage').innerHTML = '';
+        }
+
+        function getErrorMessage(code) {
+            const errors = {
+                'auth/email-already-in-use': 'البريد الإلكتروني مستخدم بالفعل',
+                'auth/invalid-email': 'البريد الإلكتروني غير صحيح',
+                'auth/user-not-found': 'المستخدم غير موجود',
+                'auth/wrong-password': 'كلمة المرور غير صحيحة',
+                'auth/weak-password': 'كلمة المرور ضعيفة',
+                'auth/network-request-failed': 'خطأ في الاتصال بالإنترنت',
+                'auth/popup-blocked': 'تم حظر النافذة المنبثقة',
+                'auth/account-exists-with-different-credential': 'يوجد حساب بنفس البريد'
             };
-            return { view: link, download: link };
+            return errors[code] || 'حدث خطأ، الرجاء المحاولة مرة أخرى';
         }
 
-        async function loadLessons() {
-            try {
-                const snap = await getDocs(collection(db, "lessons"));
-                lessons = [];
-                snap.forEach(function(d) {
-                    const data = d.data();
-                    data.id = d.id;
-                    lessons.push(data);
-                });
-                lessons.sort(function(a, b) {
-                    return (b.timestamp || 0) - (a.timestamp || 0);
-                });
-            } catch (e) {
-                console.error(e);
+        // Tab Navigation
+        function showTab(tabName) {
+            const tabs = ['home', 'add', 'review', 'gallery', 'stats'];
+            tabs.forEach(tab => {
+                const element = document.getElementById(tab + 'Tab');
+                if (element) element.classList.add('hidden');
+            });
+            
+            const targetTab = document.getElementById(tabName + 'Tab');
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-tab, .bottom-nav-item').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll(`.nav-tab, .bottom-nav-item`).forEach(btn => {
+                if (btn.textContent.includes(getTabLabel(tabName))) {
+                    btn.classList.add('active');
+                }
+            });
+
+            if (tabName === 'review') {
+                loadReviewQuestions();
+            } else if (tabName === 'gallery') {
+                loadGallery();
+            } else if (tabName === 'stats') {
+                loadDetailedStats();
+            } else if (tabName === 'home') {
+                loadUserData();
             }
         }
 
-        async function loadStudents() {
-            try {
-                const snap = await getDocs(collection(db, "students"));
-                students = [];
-                snap.forEach(function(d) {
-                    const data = d.data();
-                    data.id = d.id;
-                    students.push(data);
-                });
-                students.sort(function(a, b) {
-                    return (b.timestamp || 0) - (a.timestamp || 0);
-                });
-            } catch (e) {
-                console.error(e);
-            }
+        function getTabLabel(tab) {
+            const labels = {
+                'home': 'الرئيسية',
+                'add': 'إضافة',
+                'review': 'مراجعة',
+                'gallery': 'المعرض',
+                'stats': 'إحصائيات'
+            };
+            return labels[tab];
         }
 
-        window.checkStudentName = function() {
-            const savedName = localStorage.getItem('studentName');
-            if (savedName) {
-                currentStudentName = savedName;
-                window.selectRole('student');
+        // Spaced Repetition Algorithm - IMPROVED
+        function calculateNextReview(stage, correct) {
+            const intervals = [1, 3, 7, 14, 30, 60, 90]; // days
+            
+            if (correct) {
+                // Move to next stage, but don't exceed MAX_REVIEW_STAGE
+                const nextStage = Math.min(stage + 1, MAX_REVIEW_STAGE);
+                const days = intervals[Math.min(nextStage, intervals.length - 1)];
+                const nextDate = new Date();
+                nextDate.setDate(nextDate.getDate() + days);
+                return { stage: nextStage, date: nextDate };
             } else {
-                document.getElementById('studentNameModal').style.display = 'flex';
+                // Reset to stage 0 on error
+                const resetStage = 0;
+                const days = intervals[0];
+                const nextDate = new Date();
+                nextDate.setDate(nextDate.getDate() + days);
+                return { stage: resetStage, date: nextDate };
             }
-        };
+        }
 
-        window.saveStudentName = async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('studentNameInput').value.trim();
-            if (name) {
-                currentStudentName = name;
-                localStorage.setItem('studentName', name);
+        // Add Question - FIREBASE ONLY
+        async function addQuestion() {
+            if (!currentUser) {
+                alert('الرجاء تسجيل الدخول أولاً');
+                return;
+            }
+
+            const text = document.getElementById('questionText').value.trim();
+            const subject = document.getElementById('questionSubject').value;
+            const type = document.getElementById('questionType').value;
+
+            if (!text || !subject) {
+                alert('الرجاء إدخال السؤال واختيار المادة');
+                return;
+            }
+
+            const nextReview = new Date();
+            nextReview.setDate(nextReview.getDate() + 1);
+
+            try {
+                await db.collection('questions').add({
+                    userId: currentUser.uid,
+                    text: text,
+                    subject: subject,
+                    type: type,
+                    errorCount: type === 'خطأ' ? 1 : 0,
+                    reviewStage: 0,
+                    nextReview: firebase.firestore.Timestamp.fromDate(nextReview),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastReviewed: null,
+                    note: ''
+                });
+
+                document.getElementById('questionText').value = '';
+                document.getElementById('questionSubject').value = '';
+                alert('✅ تم إضافة السؤال بنجاح!');
+                loadUserData();
+            } catch (error) {
+                alert('حدث خطأ أثناء الإضافة');
+                console.error(error);
+            }
+        }
+
+        // Load User Data - FROM FIREBASE
+        async function loadUserData() {
+            if (!currentUser) return;
+
+            try {
+                const snapshot = await db.collection('questions')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                const allQuestions = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const todayReview = allQuestions.filter(q => {
+                    if (!q.nextReview) return false;
+                    const reviewDate = q.nextReview.toDate();
+                    reviewDate.setHours(0, 0, 0, 0);
+                    return reviewDate <= today;
+                }).length;
+
+                const errorQuestions = allQuestions.filter(q => q.type === 'خطأ').length;
+
+                document.getElementById('totalQuestions').textContent = allQuestions.length;
+                document.getElementById('todayReview').textContent = todayReview;
+                document.getElementById('errorCount').textContent = errorQuestions;
+
+                updateSubjectDistribution(allQuestions);
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Update Subject Distribution
+        function updateSubjectDistribution(questions) {
+            const subjects = ['أحياء وجيولوجيا', 'كيمياء', 'فيزياء', 'عربي', 'إنجليزي'];
+            const container = document.getElementById('subjectDistribution');
+            container.innerHTML = '';
+
+            subjects.forEach(subject => {
+                const count = questions.filter(q => q.subject === subject).length;
+                const percentage = questions.length > 0 ? (count / questions.length * 100).toFixed(1) : 0;
+
+                const item = document.createElement('div');
+                item.style.marginBottom = '15px';
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>${subject}</span>
+                        <span style="color: var(--accent); font-weight: 600;">${count} سؤال (${percentage}%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Load Review Questions - FROM FIREBASE
+        async function loadReviewQuestions() {
+            if (!currentUser) return;
+
+            const container = document.getElementById('reviewContent');
+            
+            try {
+                const today = new Date();
+                today.setHours(23, 59, 59, 999);
+
+                const snapshot = await db.collection('questions')
+                    .where('userId', '==', currentUser.uid)
+                    .where('nextReview', '<=', firebase.firestore.Timestamp.fromDate(today))
+                    .get();
+
+                reviewQueue = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                if (reviewQueue.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h3 style="color: var(--text-primary); margin-bottom: 10px;">رائع! 🎉</h3>
+                            <p>لا توجد أسئلة للمراجعة اليوم</p>
+                            <p style="margin-top: 10px; font-size: 14px;">استمتع بوقتك وعد غداً للمزيد من المراجعة</p>
+                        </div>
+                    `;
+                } else {
+                    showNextReviewQuestion();
+                }
+            } catch (error) {
+                console.error('Error loading review:', error);
+                container.innerHTML = '<p style="color: var(--danger);">حدث خطأ في التحميل</p>';
+            }
+        }
+
+        function showNextReviewQuestion() {
+            if (reviewQueue.length === 0) {
+                document.getElementById('reviewContent').innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 style="color: var(--text-primary); margin-bottom: 10px;">أحسنت! 👏</h3>
+                        <p>انتهيت من جميع الأسئلة المقررة اليوم</p>
+                    </div>
+                `;
+                loadUserData();
+                return;
+            }
+
+            currentReviewQuestion = reviewQueue[0];
+            const remaining = reviewQueue.length;
+
+            document.getElementById('reviewContent').innerHTML = `
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <span class="badge badge-subject">${currentReviewQuestion.subject}</span>
+                    <span class="badge badge-stage">المرحلة ${currentReviewQuestion.reviewStage + 1}/${MAX_REVIEW_STAGE + 1}</span>
+                    ${currentReviewQuestion.type === 'خطأ' ? '<span class="badge badge-error">خطأ</span>' : '<span class="badge badge-important">مهم</span>'}
+                </div>
+                <div class="review-question">${currentReviewQuestion.text}</div>
+                <div style="text-align: center; color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+                    ${remaining} سؤال متبقي
+                </div>
+                <div class="review-actions">
+                    <button class="btn btn-success" onclick="reviewAnswer(true)">✓ أتقنته</button>
+                    <button class="btn btn-danger" onclick="reviewAnswer(false)">✗ غلطت</button>
+                </div>
+            `;
+        }
+
+        // Review Answer - UPDATE FIREBASE DIRECTLY
+        async function reviewAnswer(correct) {
+            if (!currentReviewQuestion || !currentUser) return;
+
+            const { stage, date } = calculateNextReview(currentReviewQuestion.reviewStage, correct);
+            
+            const updateData = {
+                reviewStage: stage,
+                nextReview: firebase.firestore.Timestamp.fromDate(date),
+                lastReviewed: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // Increase error count if answer is wrong
+            if (!correct) {
+                updateData.errorCount = (currentReviewQuestion.errorCount || 0) + 1;
+            }
+
+            try {
+                await db.collection('questions').doc(currentReviewQuestion.id).update(updateData);
+                reviewQueue.shift();
+                showNextReviewQuestion();
+            } catch (error) {
+                console.error('Error updating question:', error);
+                alert('حدث خطأ أثناء التحديث');
+            }
+        }
+
+        // Load Gallery - FROM FIREBASE
+        async function loadGallery() {
+            if (!currentUser) return;
+
+            const container = document.getElementById('galleryList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            try {
+                const snapshot = await db.collection('questions')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                const questions = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                displayGallery(questions);
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                container.innerHTML = '<p style="color: var(--danger);">حدث خطأ في التحميل</p>';
+            }
+        }
+
+        function displayGallery(questions) {
+            let filtered = currentGalleryFilter === 'all' 
+                ? questions 
+                : questions.filter(q => q.subject === currentGalleryFilter);
+
+            const container = document.getElementById('galleryList');
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>لا توجد أسئلة</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(q => {
+                const nextReviewDate = q.nextReview ? q.nextReview.toDate().toLocaleDateString('ar-EG') : 'غير محدد';
+                const isOverdue = q.nextReview && q.nextReview.toDate() <= new Date();
                 
-                try {
-                    await setDoc(doc(db, "students", Date.now().toString()), {
-                        name: name,
-                        timestamp: Date.now(),
-                        lastVisit: new Date().toLocaleDateString('ar-EG')
+                return `
+                    <div class="question-item">
+                        <div class="question-header">
+                            <div class="question-badges">
+                                <span class="badge badge-subject">${q.subject}</span>
+                                ${q.type === 'خطأ' ? '<span class="badge badge-error">خطأ</span>' : '<span class="badge badge-important">مهم</span>'}
+                                <span class="badge badge-stage">المرحلة ${q.reviewStage + 1}/${MAX_REVIEW_STAGE + 1}</span>
+                            </div>
+                            <div class="question-actions">
+                                <button class="btn-small btn-note" onclick="openNoteModal('${q.id}', \`${q.text.replace(/`/g, '\\`')}\`, \`${(q.note || '').replace(/`/g, '\\`')}\`)">📝 ملاحظة</button>
+                                <button class="btn-small btn-danger" onclick="deleteQuestion('${q.id}')">حذف</button>
+                            </div>
+                        </div>
+                        <div class="question-text">${q.text}</div>
+                        ${q.note ? `
+                            <div class="note-box">
+                                <div class="note-header">
+                                    <span>📌 ملاحظتك</span>
+                                </div>
+                                <div class="note-text">${q.note}</div>
+                            </div>
+                        ` : ''}
+                        <div class="question-meta">
+                            <span>المراجعة القادمة: <strong style="color: ${isOverdue ? 'var(--danger)' : 'var(--success)'};">${nextReviewDate}</strong></span>
+                            ${q.type === 'خطأ' ? `<span>عدد الأخطاء: <strong>${q.errorCount || 0}</strong></span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterGallery(subject) {
+            currentGalleryFilter = subject;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            loadGallery();
+        }
+
+        // Delete Question - FROM FIREBASE
+        async function deleteQuestion(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
+
+            try {
+                await db.collection('questions').doc(id).delete();
+                alert('تم الحذف بنجاح');
+                loadGallery();
+                loadUserData();
+            } catch (error) {
+                console.error('Error deleting:', error);
+                alert('حدث خطأ أثناء الحذف');
+            }
+        }
+
+        // Detailed Statistics - FROM FIREBASE
+        async function loadDetailedStats() {
+            if (!currentUser) return;
+
+            const container = document.getElementById('detailedStats');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            try {
+                const snapshot = await db.collection('questions')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                const questions = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                const subjects = ['أحياء وجيولوجيا', 'كيمياء', 'فيزياء', 'عربي', 'إنجليزي'];
+                let html = '';
+
+                subjects.forEach(subject => {
+                    const subjectQuestions = questions.filter(q => q.subject === subject);
+                    const total = subjectQuestions.length;
+                    const errors = subjectQuestions.filter(q => q.type === 'خطأ').length;
+                    const important = subjectQuestions.filter(q => q.type === 'مهم').length;
+                    const avgStage = total > 0 ? (subjectQuestions.reduce((sum, q) => sum + q.reviewStage, 0) / total).toFixed(1) : 0;
+
+                    html += `
+                        <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 10px; margin-bottom: 15px;">
+                            <h4 style="color: var(--accent); margin-bottom: 15px;">${subject}</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px;">
+                                <div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--accent);">${total}</div>
+                                    <div style="font-size: 13px; color: var(--text-secondary);">إجمالي الأسئلة</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--danger);">${errors}</div>
+                                    <div style="font-size: 13px; color: var(--text-secondary);">أخطاء</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--warning);">${important}</div>
+                                    <div style="font-size: 13px; color: var(--text-secondary);">مهمة</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--success);">${avgStage}</div>
+                                    <div style="font-size: 13px; color: var(--text-secondary);">متوسط المرحلة</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const totalErrors = questions.filter(q => q.type === 'خطأ').reduce((sum, q) => sum + (q.errorCount || 0), 0);
+                html += `
+                    <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--danger); margin-bottom: 8px;">${totalErrors}</div>
+                        <div style="color: var(--text-secondary);">إجمالي مرات الخطأ في جميع الأسئلة</div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                container.innerHTML = '<p style="color: var(--danger);">حدث خطأ في التحميل</p>';
+            }
+        }
+
+        // Note Modal Functions
+        function openNoteModal(questionId, questionText, noteText) {
+            currentNoteQuestionId = questionId;
+            document.getElementById('modalQuestionText').textContent = questionText;
+            document.getElementById('noteInput').value = noteText || '';
+            document.getElementById('noteModal').classList.remove('hidden');
+        }
+
+        function closeNoteModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('noteModal').classList.add('hidden');
+            currentNoteQuestionId = null;
+        }
+
+        async function saveNote() {
+            if (!currentNoteQuestionId) return;
+
+            const noteText = document.getElementById('noteInput').value.trim();
+
+            try {
+                await db.collection('questions').doc(currentNoteQuestionId).update({
+                    note: noteText
+                });
+
+                alert('✅ تم حفظ الملاحظة بنجاح!');
+                closeNoteModal();
+                loadGallery();
+                loadUserData();
+            } catch (error) {
+                console.error('Error saving note:', error);
+                alert('حدث خطأ أثناء حفظ الملاحظة');
+            }
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    self.addEventListener('install', (e) => {
+                        e.waitUntil(
+                            caches.open('thanaweia-v1').then((cache) => {
+                                return cache.addAll(['/']);
+                            })
+                        );
                     });
-                } catch (e) {
-                    console.error(e);
-                }
+                    
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then((response) => {
+                                return response || fetch(e.request);
+                            })
+                        );
+                    });
+                `;
                 
-                document.getElementById('studentNameModal').style.display = 'none';
-                document.getElementById('studentNameInput').value = '';
-                window.selectRole('student');
-            }
-        };
-
-        window.teacherIconClick = function() {
-            clickCount++;
-            if (clickCount === 1) clickTimer = setTimeout(function() { clickCount = 0; }, 2000);
-            if (clickCount === 3) {
-                clearTimeout(clickTimer);
-                clickCount = 0;
-                document.getElementById('teacherLoginModal').style.display = 'flex';
-            }
-        };
-
-        window.closeTeacherLogin = function() {
-            document.getElementById('teacherLoginModal').style.display = 'none';
-            document.getElementById('teacherPassword').value = '';
-            document.getElementById('loginError').style.display = 'none';
-        };
-
-        window.teacherLogin = function(e) {
-            e.preventDefault();
-            if (document.getElementById('teacherPassword').value === TEACHER_PASSWORD) {
-                window.closeTeacherLogin();
-                window.selectRole('teacher');
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-            }
-        };
-
-        window.selectRole = function(role) {
-            document.getElementById('roleSelection').style.display = 'none';
-            if (role === 'teacher') {
-                document.getElementById('teacherDashboard').classList.add('active');
-                displayTeacher();
-                displayStudentsList();
-            } else {
-                document.getElementById('studentDashboard').classList.add('active');
-                document.getElementById('studentWelcome').textContent = 'مرحباً ' + currentStudentName + ' 🌟';
-                currentStudentFilter = 'nahw';
-                const tabs = document.querySelectorAll('#studentDashboard .category-tab');
-                tabs.forEach(function(tab) {
-                    tab.classList.remove('active');
-                });
-                tabs[0].classList.add('active');
-                displayStudent();
-            }
-        };
-
-        window.backToSelection = function() {
-            document.getElementById('teacherDashboard').classList.remove('active');
-            document.getElementById('studentDashboard').classList.remove('active');
-            document.getElementById('roleSelection').style.display = 'block';
-            currentTeacherFilter = 'all';
-            currentStudentFilter = 'nahw';
-        };
-
-        window.filterTeacherLessons = function(category) {
-            currentTeacherFilter = category;
-            
-            const tabs = document.querySelectorAll('#teacherDashboard .category-tab');
-            tabs.forEach(function(tab) {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            displayTeacher();
-        };
-
-        window.filterStudentLessons = function(category) {
-            currentStudentFilter = category;
-            
-            const tabs = document.querySelectorAll('#studentDashboard .category-tab');
-            tabs.forEach(function(tab) {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            displayStudent();
-        };
-
-        window.addLesson = async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('addBtn');
-            const category = document.getElementById('lessonCategory').value;
-            const title = document.getElementById('lessonTitle').value;
-            const desc = document.getElementById('lessonDesc').value;
-            const link = document.getElementById('driveLink').value;
-            
-            try {
-                btn.disabled = true;
-                btn.textContent = 'جاري الإضافة...';
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
                 
-                const links = convertLink(link);
-                await addDoc(collection(db, "lessons"), {
-                    category: category,
-                    title: title, 
-                    description: desc,
-                    date: new Date().toLocaleDateString('ar-EG'),
-                    driveLink: link, 
-                    viewLink: links.view,
-                    downloadLink: links.download, 
-                    timestamp: Date.now()
-                });
-                
-                await loadLessons();
-                document.getElementById('lessonCategory').value = '';
-                document.getElementById('lessonTitle').value = '';
-                document.getElementById('lessonDesc').value = '';
-                document.getElementById('driveLink').value = '';
-                displayTeacher();
-                alert('تم إضافة الدرس بنجاح! ✅');
-            } catch (e) {
-                alert('حدث خطأ ❌');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'إضافة الدرس';
-            }
-        };
-
-        function displayTeacher() {
-            const cont = document.getElementById('teacherLessonsList');
-            const filteredLessons = currentTeacherFilter === 'all' 
-                ? lessons 
-                : lessons.filter(function(l) { return l.category === currentTeacherFilter; });
-            
-            if (filteredLessons.length === 0) {
-                cont.innerHTML = '<div class="empty-state">لا توجد دروس في هذا الفرع</div>';
-                return;
-            }
-            
-            let html = '';
-            filteredLessons.forEach(function(l) {
-                html += '<div class="lesson-item ' + l.category + '">';
-                html += '<div class="lesson-info">';
-                html += '<h3>' + l.title + '</h3>';
-                html += '<span class="lesson-category ' + l.category + '">' + categoryNames[l.category] + '</span>';
-                html += '<p>' + (l.description || 'لا يوجد وصف') + '</p>';
-                html += '<p style="font-size: 0.85rem; color: #999;">' + l.date + '</p>';
-                html += '</div>';
-                html += '<div class="lesson-actions">';
-                html += '<button class="view-btn" onclick="viewLesson(\'' + l.viewLink + '\')">👁️ عرض</button>';
-                html += '<button class="download-btn" onclick="downloadLesson(\'' + l.downloadLink + '\')">📥 تحميل</button>';
-                html += '<button class="delete-btn" onclick="deleteLesson(\'' + l.id + '\')">🗑️ حذف</button>';
-                html += '</div>';
-                html += '</div>';
+                navigator.serviceWorker.register(swUrl).catch(() => {});
             });
-            cont.innerHTML = html;
         }
-
-        function displayStudent() {
-            const cont = document.getElementById('studentLessonsList');
-            const filteredLessons = lessons.filter(function(l) { return l.category === currentStudentFilter; });
-            
-            if (filteredLessons.length === 0) {
-                cont.innerHTML = '<div class="empty-state">لا توجد دروس في هذا الفرع</div>';
-                return;
-            }
-            
-            let html = '';
-            filteredLessons.forEach(function(l) {
-                html += '<div class="lesson-item ' + l.category + '">';
-                html += '<div class="lesson-info">';
-                html += '<h3>' + l.title + '</h3>';
-                html += '<span class="lesson-category ' + l.category + '">' + categoryNames[l.category] + '</span>';
-                html += '<p>' + (l.description || 'لا يوجد وصف') + '</p>';
-                html += '<p style="font-size: 0.85rem; color: #999;">' + l.date + '</p>';
-                html += '</div>';
-                html += '<div class="lesson-actions">';
-                html += '<button class="view-btn" onclick="viewLesson(\'' + l.viewLink + '\')">👁️ عرض</button>';
-                html += '<button class="download-btn" onclick="downloadLesson(\'' + l.downloadLink + '\')">📥 تحميل</button>';
-                html += '</div>';
-                html += '</div>';
-            });
-            cont.innerHTML = html;
-        }
-
-        function displayStudentsList() {
-            const cont = document.getElementById('studentsList');
-            
-            if (students.length === 0) {
-                cont.innerHTML = '<div class="empty-state">لا يوجد طلاب مسجلين</div>';
-                return;
-            }
-            
-            let html = '';
-            students.forEach(function(s, index) {
-                html += '<div class="lesson-item" style="border-right-color: #9b59b6;">';
-                html += '<div class="lesson-info">';
-                html += '<h3>' + (index + 1) + '. ' + s.name + '</h3>';
-                html += '<p style="font-size: 0.85rem; color: #999;">آخر زيارة: ' + s.lastVisit + '</p>';
-                html += '</div>';
-                html += '</div>';
-            });
-            cont.innerHTML = html;
-        }
-
-        window.deleteLesson = async function(id) {
-            if (confirm('هل أنت متأكد من حذف هذا الدرس؟')) {
-                try {
-                    await deleteDoc(doc(db, "lessons", id));
-                    await loadLessons();
-                    displayTeacher();
-                    alert('تم الحذف ✅');
-                } catch (e) {
-                    alert('خطأ في الحذف ❌');
-                }
-            }
-        };
-
-        window.viewLesson = function(link) {
-            window.open(link, '_blank');
-        };
-
-        window.downloadLesson = function(link) {
-            window.open(link, '_blank');
-        };
-
-        window.addEventListener('load', async function() {
-            await loadLessons();
-            await loadStudents();
-            setTimeout(function() {
-                document.getElementById('loadingScreen').classList.add('hide');
-                document.getElementById('mainApp').classList.add('show');
-            }, 3000);
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.shiftKey && e.key === 'T') {
-                e.preventDefault();
-                document.getElementById('teacherLoginModal').style.display = 'flex';
-            }
-        });
     </script>
 </body>
 </html>
+                        <label>نص السؤال</label>
+                        <textarea id="questionText" placeholder="أدخل السؤال هنا..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>المادة</label>
+                        <select id="questionSubject">
+                            <option value="">اختر المادة</option>
+                            <option value="أحياء وجيولوجيا">أحياء وجيولوجيا</option>
+                            <option value="كيمياء">كيمياء</option>
+                            <option value="فيزياء">فيزياء</option>
+                            <option value="عربي">عربي</option>
+                            <option value="إنجليزي">إنجليزي</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
