@@ -1107,6 +1107,7 @@
         let currentReviewQuestion = null;
         let reviewQueue = [];
         let currentNoteQuestionId = null;
+        let currentImageData = null;
 
         const MAX_REVIEW_STAGE = 6;
 
@@ -1253,7 +1254,9 @@
         }
 
         function logout() {
-            auth.signOut();
+            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                auth.signOut();
+            }
         }
 
         function showAuthMessage(message, type) {
@@ -1339,6 +1342,164 @@
             }
         }
 
+        // Image Upload Functions
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('الرجاء اختيار صورة صحيحة');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentImageData = e.target.result;
+                document.getElementById('previewImg').src = currentImageData;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function openCamera() {
+            try {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.capture = 'environment';
+                input.onchange = handleImageUpload;
+                input.click();
+            } catch (error) {
+                alert('تعذر فتح الكاميرا');
+            }
+        }
+
+        function clearImage() {
+            currentImageData = null;
+            document.getElementById('questionImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('extractionStatus').innerHTML = '';
+        }
+
+        async function extractTextFromImage() {
+            if (!currentImageData) {
+                alert('الرجاء اختيار صورة أولاً');
+                return;
+            }
+
+            const statusDiv = document.getElementById('extractionStatus');
+            statusDiv.innerHTML = '<div class="spinner" style="width: 30px; height: 30px; margin: 10px auto;"></div><p>جاري استخراج النص بذكاء... 🤖</p>';
+
+            try {
+                // Convert base64 to proper format for Claude API
+                const base64Data = currentImageData.split(',')[1];
+                const mediaType = currentImageData.split(';')[0].split(':')[1];
+
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1024,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image',
+                                    source: {
+                                        type: 'base64',
+                                        media_type: mediaType,
+                                        data: base64Data
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: `قم باستخراج نص السؤال من هذه الصورة بدقة عالية. 
+
+تعليمات مهمة:
+1. استخرج السؤال كاملاً بدون أي إضافات
+2. حافظ على التنسيق والرموز الرياضية إن وجدت
+3. إذا كان هناك خيارات إجابة (A, B, C, D)، استخرجها أيضاً
+4. لا تضف أي تعليقات أو شروحات
+5. فقط النص الموجود في الصورة
+
+أعطني النص فقط بدون أي مقدمات.`
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('فشل استخراج النص');
+                }
+
+                const data = await response.json();
+                const extractedText = data.content[0].text.trim();
+
+                if (extractedText) {
+                    document.getElementById('questionText').value = extractedText;
+                    statusDiv.innerHTML = '<p style="color: var(--success);">✅ تم استخراج النص بنجاح!</p>';
+                    
+                    // Auto-detect if there are answer options
+                    if (extractedText.includes('A)') || extractedText.includes('أ)') || 
+                        extractedText.includes('B)') || extractedText.includes('ب)')) {
+                        document.getElementById('hasAnswers').checked = true;
+                        toggleAnswerOptions();
+                        autoFillAnswers(extractedText);
+                    }
+                } else {
+                    statusDiv.innerHTML = '<p style="color: var(--danger);">❌ لم يتم العثور على نص في الصورة</p>';
+                }
+            } catch (error) {
+                console.error('Error extracting text:', error);
+                statusDiv.innerHTML = '<p style="color: var(--danger);">❌ حدث خطأ أثناء استخراج النص. الرجاء المحاولة مرة أخرى</p>';
+            }
+        }
+
+        function autoFillAnswers(text) {
+            // Try to extract answers from text
+            const lines = text.split('\n');
+            const answers = { A: '', B: '', C: '', D: '' };
+            
+            lines.forEach(line => {
+                if (line.match(/^[Aa]\)/) || line.match(/^أ\)/)) {
+                    answers.A = line.replace(/^[Aa]\)|^أ\)/, '').trim();
+                } else if (line.match(/^[Bb]\)/) || line.match(/^ب\)/)) {
+                    answers.B = line.replace(/^[Bb]\)|^ب\)/, '').trim();
+                } else if (line.match(/^[Cc]\)/) || line.match(/^ج\)/)) {
+                    answers.C = line.replace(/^[Cc]\)|^ج\)/, '').trim();
+                } else if (line.match(/^[Dd]\)/) || line.match(/^د\)/)) {
+                    answers.D = line.replace(/^[Dd]\)|^د\)/, '').trim();
+                }
+            });
+
+            if (answers.A) document.getElementById('answerA').value = answers.A;
+            if (answers.B) document.getElementById('answerB').value = answers.B;
+            if (answers.C) document.getElementById('answerC').value = answers.C;
+            if (answers.D) document.getElementById('answerD').value = answers.D;
+        }
+
+        function toggleAnswerOptions() {
+            const container = document.getElementById('answerOptionsContainer');
+            const checkbox = document.getElementById('hasAnswers');
+            
+            if (checkbox.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                // Clear answer fields
+                document.getElementById('answerA').value = '';
+                document.getElementById('answerB').value = '';
+                document.getElementById('answerC').value = '';
+                document.getElementById('answerD').value = '';
+                document.querySelectorAll('input[name="correctAnswer"]').forEach(radio => radio.checked = false);
+            }
+        }
+
         async function addQuestion() {
             if (!currentUser) {
                 alert('الرجاء تسجيل الدخول أولاً');
@@ -1348,10 +1509,49 @@
             const text = document.getElementById('questionText').value.trim();
             const subject = document.getElementById('questionSubject').value;
             const type = document.getElementById('questionType').value;
+            const hasAnswers = document.getElementById('hasAnswers').checked;
 
             if (!text || !subject) {
                 alert('الرجاء إدخال السؤال واختيار المادة');
                 return;
+            }
+
+            if (text.length < 10) {
+                alert('السؤال قصير جداً! يجب أن يكون 10 أحرف على الأقل');
+                return;
+            }
+
+            if (text.length > 1000) {
+                alert('السؤال طويل جداً! الحد الأقصى 1000 حرف');
+                return;
+            }
+
+            let answerData = null;
+            
+            if (hasAnswers) {
+                const answerA = document.getElementById('answerA').value.trim();
+                const answerB = document.getElementById('answerB').value.trim();
+                const answerC = document.getElementById('answerC').value.trim();
+                const answerD = document.getElementById('answerD').value.trim();
+                const correctAnswer = document.querySelector('input[name="correctAnswer"]:checked');
+
+                if (!answerA || !answerB || !answerC || !answerD) {
+                    alert('الرجاء إدخال جميع خيارات الإجابة');
+                    return;
+                }
+
+                if (!correctAnswer) {
+                    alert('الرجاء تحديد الإجابة الصحيحة');
+                    return;
+                }
+
+                answerData = {
+                    A: answerA,
+                    B: answerB,
+                    C: answerC,
+                    D: answerD,
+                    correct: correctAnswer.value
+                };
             }
 
             const nextReview = new Date();
@@ -1368,11 +1568,18 @@
                     nextReview: firebase.firestore.Timestamp.fromDate(nextReview),
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastReviewed: null,
-                    note: ''
+                    note: '',
+                    answers: answerData,
+                    imageUrl: currentImageData || null
                 });
 
+                // Clear form
                 document.getElementById('questionText').value = '';
                 document.getElementById('questionSubject').value = '';
+                document.getElementById('hasAnswers').checked = false;
+                toggleAnswerOptions();
+                clearImage();
+                
                 alert('✅ تم إضافة السؤال بنجاح!');
                 loadUserData();
             } catch (error) {
@@ -1497,21 +1704,116 @@
             currentReviewQuestion = reviewQueue[0];
             const remaining = reviewQueue.length;
 
+            let answersHTML = '';
+            if (currentReviewQuestion.answers) {
+                answersHTML = `
+                    <div style="margin: 20px 0; background: var(--bg-tertiary); padding: 20px; border-radius: 10px;">
+                        <div class="answer-option" onclick="selectAnswer('A')" style="padding: 12px; margin-bottom: 10px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;" id="answer-A">
+                            <strong>A)</strong> ${currentReviewQuestion.answers.A}
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer('B')" style="padding: 12px; margin-bottom: 10px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;" id="answer-B">
+                            <strong>B)</strong> ${currentReviewQuestion.answers.B}
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer('C')" style="padding: 12px; margin-bottom: 10px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;" id="answer-C">
+                            <strong>C)</strong> ${currentReviewQuestion.answers.C}
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer('D')" style="padding: 12px; margin-bottom: 10px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;" id="answer-D">
+                            <strong>D)</strong> ${currentReviewQuestion.answers.D}
+                        </div>
+                        <button class="btn btn-success" onclick="checkAnswer()" id="checkAnswerBtn" style="margin-top: 10px;" disabled>تحقق من الإجابة</button>
+                        <div id="answerResult" style="margin-top: 15px; padding: 12px; border-radius: 8px; display: none;"></div>
+                    </div>
+                `;
+            }
+
             document.getElementById('reviewContent').innerHTML = `
                 <div style="text-align: center; margin-bottom: 15px;">
                     <span class="badge badge-subject">${currentReviewQuestion.subject}</span>
                     <span class="badge badge-stage">المرحلة ${currentReviewQuestion.reviewStage + 1}/${MAX_REVIEW_STAGE + 1}</span>
                     ${currentReviewQuestion.type === 'خطأ' ? '<span class="badge badge-error">خطأ</span>' : '<span class="badge badge-important">مهم</span>'}
                 </div>
+                ${currentReviewQuestion.imageUrl ? `<img src="${currentReviewQuestion.imageUrl}" style="max-width: 100%; border-radius: 10px; margin-bottom: 15px;">` : ''}
                 <div class="review-question">${currentReviewQuestion.text}</div>
+                ${answersHTML}
                 <div style="text-align: center; color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
                     ${remaining} سؤال متبقي
                 </div>
-                <div class="review-actions">
-                    <button class="btn btn-success" onclick="reviewAnswer(true)">✓ أتقنته</button>
-                    <button class="btn btn-danger" onclick="reviewAnswer(false)">✗ غلطت</button>
+                ${!currentReviewQuestion.answers ? `
+                    <div class="review-actions">
+                        <button class="btn btn-success" onclick="reviewAnswer(true)">✓ أتقنته</button>
+                        <button class="btn btn-danger" onclick="reviewAnswer(false)">✗ غلطت</button>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        let selectedAnswerOption = null;
+
+        function selectAnswer(option) {
+            selectedAnswerOption = option;
+            
+            // Reset all options
+            ['A', 'B', 'C', 'D'].forEach(opt => {
+                const el = document.getElementById(`answer-${opt}`);
+                if (el) {
+                    el.style.border = '2px solid transparent';
+                    el.style.background = 'var(--bg-secondary)';
+                }
+            });
+            
+            // Highlight selected
+            const selected = document.getElementById(`answer-${option}`);
+            if (selected) {
+                selected.style.border = '2px solid var(--accent)';
+                selected.style.background = 'var(--bg-primary)';
+            }
+            
+            // Enable check button
+            document.getElementById('checkAnswerBtn').disabled = false;
+        }
+
+        function checkAnswer() {
+            if (!selectedAnswerOption || !currentReviewQuestion.answers) return;
+            
+            const isCorrect = selectedAnswerOption === currentReviewQuestion.answers.correct;
+            const resultDiv = document.getElementById('answerResult');
+            const correctAnswer = currentReviewQuestion.answers.correct;
+            
+            // Show correct answer
+            const correctEl = document.getElementById(`answer-${correctAnswer}`);
+            if (correctEl) {
+                correctEl.style.border = '2px solid var(--success)';
+                correctEl.style.background = 'rgba(16, 185, 129, 0.1)';
+            }
+            
+            // Show wrong answer if selected incorrectly
+            if (!isCorrect) {
+                const wrongEl = document.getElementById(`answer-${selectedAnswerOption}`);
+                if (wrongEl) {
+                    wrongEl.style.border = '2px solid var(--danger)';
+                    wrongEl.style.background = 'rgba(239, 68, 68, 0.1)';
+                }
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.style.background = isCorrect ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            resultDiv.style.border = isCorrect ? '1px solid var(--success)' : '1px solid var(--danger)';
+            resultDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <p style="font-size: 18px; margin-bottom: 10px;">${isCorrect ? '✅ إجابة صحيحة!' : '❌ إجابة خاطئة'}</p>
+                    ${!isCorrect ? `<p style="color: var(--text-secondary);">الإجابة الصحيحة: <strong>${correctAnswer}</strong></p>` : ''}
+                    <button class="btn ${isCorrect ? 'btn-success' : 'btn-danger'}" onclick="reviewAnswer(${isCorrect})" style="margin-top: 10px;">
+                        ${isCorrect ? 'التالي ✓' : 'التالي ✗'}
+                    </button>
                 </div>
             `;
+            
+            // Disable check button and answer selection
+            document.getElementById('checkAnswerBtn').disabled = true;
+            ['A', 'B', 'C', 'D'].forEach(opt => {
+                const el = document.getElementById(`answer-${opt}`);
+                if (el) el.style.pointerEvents = 'none';
+            });
         }
 
         async function reviewAnswer(correct) {
@@ -1532,6 +1834,7 @@
             try {
                 await db.collection('questions').doc(currentReviewQuestion.id).update(updateData);
                 reviewQueue.shift();
+                selectedAnswerOption = null;
                 showNextReviewQuestion();
             } catch (error) {
                 console.error('Error updating question:', error);
@@ -1582,6 +1885,20 @@
                 const nextReviewDate = q.nextReview ? q.nextReview.toDate().toLocaleDateString('ar-EG') : 'غير محدد';
                 const isOverdue = q.nextReview && q.nextReview.toDate() <= new Date();
                 
+                let answersHTML = '';
+                if (q.answers) {
+                    answersHTML = `
+                        <div style="margin-top: 12px; padding: 12px; background: var(--bg-primary); border-radius: 8px; font-size: 14px;">
+                            <div style="color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">الخيارات:</div>
+                            <div style="margin-bottom: 4px;"><strong>A)</strong> ${q.answers.A}</div>
+                            <div style="margin-bottom: 4px;"><strong>B)</strong> ${q.answers.B}</div>
+                            <div style="margin-bottom: 4px;"><strong>C)</strong> ${q.answers.C}</div>
+                            <div style="margin-bottom: 4px;"><strong>D)</strong> ${q.answers.D}</div>
+                            <div style="margin-top: 8px; color: var(--success); font-weight: 600;">✓ الإجابة الصحيحة: ${q.answers.correct}</div>
+                        </div>
+                    `;
+                }
+                
                 return `
                     <div class="question-item">
                         <div class="question-header">
@@ -1589,13 +1906,16 @@
                                 <span class="badge badge-subject">${q.subject}</span>
                                 ${q.type === 'خطأ' ? '<span class="badge badge-error">خطأ</span>' : '<span class="badge badge-important">مهم</span>'}
                                 <span class="badge badge-stage">المرحلة ${q.reviewStage + 1}/${MAX_REVIEW_STAGE + 1}</span>
+                                ${q.answers ? '<span class="badge" style="background: var(--success); color: white;">اختيارات</span>' : ''}
                             </div>
                             <div class="question-actions">
                                 <button class="btn-small btn-note" onclick="openNoteModal('${q.id}', \`${q.text.replace(/`/g, '\\`')}\`, \`${(q.note || '').replace(/`/g, '\\`')}\`)">📝 ملاحظة</button>
                                 <button class="btn-small btn-danger" onclick="deleteQuestion('${q.id}')">حذف</button>
                             </div>
                         </div>
+                        ${q.imageUrl ? `<img src="${q.imageUrl}" style="max-width: 100%; border-radius: 8px; margin-bottom: 12px;">` : ''}
                         <div class="question-text">${q.text}</div>
+                        ${answersHTML}
                         ${q.note ? `
                             <div class="note-box">
                                 <div class="note-header">
@@ -1869,4 +2189,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
