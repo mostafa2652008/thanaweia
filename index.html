@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="THANAWEIA AMMA">
     <title>MOSTAFA THANAWEIA AMMA</title>
-    <link rel="manifest" id="manifest-placeholder">
+    <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22MOSTAFA%20THANAWEIA%20AMMA%22%2C%22short_name%22%3A%22THANAWEIA%22%2C%22description%22%3A%22%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D9%85%D8%B1%D8%A7%D8%AC%D8%B9%D8%A9%20%D8%A7%D9%84%D8%B0%D9%83%D9%8A%D8%A9%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%231e293b%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Ctext%20y%3D%27.9em%27%20font-size%3D%2790%27%3E%F0%9F%93%9A%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
     <style>
         * {
             margin: 0;
@@ -489,6 +492,95 @@
             height: 80px;
             margin-bottom: 20px;
             opacity: 0.3;
+        }
+
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .install-prompt-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .install-prompt-icon {
+            font-size: 48px;
+            line-height: 1;
+        }
+
+        .install-prompt-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .install-prompt-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .install-prompt-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .install-prompt-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .install-btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .install-btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .install-btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .install-btn-secondary:hover {
+            background: var(--border);
         }
 
         /* Subject Filter */
@@ -987,6 +1079,27 @@
         </div>
     </div>
 
+    <!-- PWA Install Prompt -->
+    <div id="installPrompt" class="install-prompt hidden">
+        <div class="install-prompt-header">
+            <div class="install-prompt-icon">📚</div>
+            <div>
+                <div class="install-prompt-title">ثبّت التطبيق</div>
+                <div class="install-prompt-desc">
+                    احصل على تجربة أفضل! ثبّت التطبيق للوصول السريع والمراجعة بدون اتصال
+                </div>
+            </div>
+        </div>
+        <div class="install-prompt-actions">
+            <button class="install-btn-primary" onclick="installApp()">
+                📥 تثبيت الآن
+            </button>
+            <button class="install-btn-secondary" onclick="dismissInstallPrompt()">
+                لاحقاً
+            </button>
+        </div>
+    </div>
+
     <!-- Note Modal -->
     <div id="noteModal" class="modal-overlay hidden" onclick="closeNoteModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -1039,6 +1152,7 @@
         let currentReviewQuestion = null;
         let currentNoteQuestionId = null;
         let choiceCounter = 2;
+        let deferredPrompt = null;
 
         // Spaced Repetition Configuration
         const MAX_REVIEW_STAGE = 6;
@@ -2003,7 +2117,117 @@
 
         window.addEventListener('load', () => {
             console.log('App initialized - Firestore as Single Source of Truth');
+            registerServiceWorker();
         });
+
+        // PWA Installation Functions
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Check if user hasn't dismissed the prompt before
+            const dismissedInstall = localStorage.getItem('dismissedInstall');
+            const dismissedDate = localStorage.getItem('dismissedInstallDate');
+            const today = new Date().toDateString();
+            
+            // Show prompt if never dismissed or dismissed more than 3 days ago
+            if (!dismissedInstall || dismissedDate !== today) {
+                setTimeout(() => {
+                    showInstallPrompt();
+                }, 3000); // Show after 3 seconds
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA installed successfully');
+            deferredPrompt = null;
+            hideInstallPrompt();
+            
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('تم التثبيت بنجاح! 🎉', {
+                    body: 'يمكنك الآن استخدام التطبيق من الشاشة الرئيسية',
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="75">📚</text></svg>'
+                });
+            }
+        });
+
+        function showInstallPrompt() {
+            const promptEl = document.getElementById('installPrompt');
+            if (promptEl && deferredPrompt) {
+                promptEl.classList.remove('hidden');
+            }
+        }
+
+        function hideInstallPrompt() {
+            const promptEl = document.getElementById('installPrompt');
+            if (promptEl) {
+                promptEl.classList.add('hidden');
+            }
+        }
+
+        async function installApp() {
+            if (!deferredPrompt) {
+                alert('التطبيق مثبت بالفعل أو المتصفح لا يدعم التثبيت');
+                hideInstallPrompt();
+                return;
+            }
+
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            console.log(`User response: ${outcome}`);
+            
+            if (outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+            
+            deferredPrompt = null;
+            hideInstallPrompt();
+        }
+
+        function dismissInstallPrompt() {
+            hideInstallPrompt();
+            localStorage.setItem('dismissedInstall', 'true');
+            localStorage.setItem('dismissedInstallDate', new Date().toDateString());
+        }
+
+        // Service Worker Registration
+        async function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    // Create a simple service worker inline
+                    const swCode = `
+                        self.addEventListener('install', (e) => {
+                            console.log('Service Worker installed');
+                            self.skipWaiting();
+                        });
+                        
+                        self.addEventListener('activate', (e) => {
+                            console.log('Service Worker activated');
+                            e.waitUntil(clients.claim());
+                        });
+                        
+                        self.addEventListener('fetch', (e) => {
+                            e.respondWith(
+                                fetch(e.request).catch(() => {
+                                    return new Response('Offline - please check your connection');
+                                })
+                            );
+                        });
+                    `;
+                    
+                    const blob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(blob);
+                    
+                    const registration = await navigator.serviceWorker.register(swUrl);
+                    console.log('Service Worker registered successfully');
+                } catch (error) {
+                    console.log('Service Worker registration failed:', error);
+                }
+            }
+        }
     </script>
 </body>
 </html>
