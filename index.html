@@ -725,6 +725,116 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Help Chatbot */
+        .help-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .help-button.show {
+            display: flex;
+        }
+
+        .help-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
+        }
+
+        .help-chat {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            width: 320px;
+            max-height: 400px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .help-chat.show {
+            display: flex;
+        }
+
+        .help-chat-header {
+            background: var(--accent);
+            padding: 15px;
+            color: white;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .help-chat-body {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .help-message {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .help-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .help-option-btn {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            text-align: right;
+        }
+
+        .help-option-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .help-chat {
+                width: calc(100vw - 40px);
+                left: 20px;
+                right: 20px;
+            }
+
+            .help-button {
+                bottom: 90px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -845,6 +955,21 @@
                     <h3>إضافة سؤال جديد</h3>
                     
                     <div class="form-group">
+                        <label>نص السؤال</label>
+                        <textarea id="questionText" placeholder="أدخل السؤال هنا..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>المادة</label>
+                        <select id="questionSubject">
+                            <option value="">اختر المادة</option>
+                            <option value="أحياء وجيولوجيا">أحياء وجيولوجيا</option>
+                            <option value="كيمياء">كيمياء</option>
+                            <option value="فيزياء">فيزياء</option>
+                            <option value="عربي">عربي</option>
+                            <option value="إنجليزي">إنجليزي</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>نوع السؤال</label>
                         <select id="questionType">
                             <option value="مهم">مهم</option>
@@ -936,6 +1061,27 @@
         </div>
     </div>
 
+    <!-- Help Chatbot -->
+    <button class="help-button" onclick="toggleHelpChat()">💬</button>
+    <div id="helpChat" class="help-chat">
+        <div class="help-chat-header">
+            <span>🤖 مساعد المراجعة</span>
+            <button onclick="toggleHelpChat()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">×</button>
+        </div>
+        <div class="help-chat-body" id="helpChatBody">
+            <div class="help-message">
+                مرحباً! 👋 أنا هنا لمساعدتك في استخدام نظام المراجعة الذكية. كيف يمكنني مساعدتك؟
+            </div>
+            <div class="help-options">
+                <button class="help-option-btn" onclick="showHelp('how-to-use')">📚 كيف أستخدم التطبيق؟</button>
+                <button class="help-option-btn" onclick="showHelp('spaced-repetition')">🧠 ما هو نظام التكرار المتباعد؟</button>
+                <button class="help-option-btn" onclick="showHelp('add-question')">➕ كيف أضيف سؤال؟</button>
+                <button class="help-option-btn" onclick="showHelp('review-system')">🔄 كيف تعمل المراجعة؟</button>
+                <button class="help-option-btn" onclick="showHelp('notes')">📝 كيف أضيف ملاحظات؟</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-auth-compat.js"></script>
@@ -962,10 +1108,8 @@
         let reviewQueue = [];
         let currentNoteQuestionId = null;
 
-        // Maximum review stage (7 stages: 0-6)
         const MAX_REVIEW_STAGE = 6;
 
-        // PWA Manifest
         const manifestData = {
             name: "MOSTAFA THANAWEIA AMMA",
             short_name: "Thanaweia",
@@ -985,12 +1129,12 @@
         const manifestURL = URL.createObjectURL(manifestBlob);
         document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
 
-        // AUTH GUARD - Critical: Check authentication state
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
+                document.querySelector('.help-button').classList.add('show');
                 
                 const displayName = user.displayName || user.email.split('@')[0];
                 document.getElementById('userEmail').textContent = user.email;
@@ -1002,6 +1146,7 @@
                 currentUser = null;
                 document.getElementById('authScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
+                document.querySelector('.help-button').classList.remove('show');
             }
         });
 
@@ -1026,7 +1171,6 @@
             }
         }
 
-        // Authentication Functions
         function showLogin() {
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('registerForm').classList.add('hidden');
@@ -1136,7 +1280,6 @@
             return errors[code] || 'حدث خطأ، الرجاء المحاولة مرة أخرى';
         }
 
-        // Tab Navigation
         function showTab(tabName) {
             const tabs = ['home', 'add', 'review', 'gallery', 'stats'];
             tabs.forEach(tab => {
@@ -1178,19 +1321,16 @@
             return labels[tab];
         }
 
-        // Spaced Repetition Algorithm - IMPROVED
         function calculateNextReview(stage, correct) {
-            const intervals = [1, 3, 7, 14, 30, 60, 90]; // days
+            const intervals = [1, 3, 7, 14, 30, 60, 90];
             
             if (correct) {
-                // Move to next stage, but don't exceed MAX_REVIEW_STAGE
                 const nextStage = Math.min(stage + 1, MAX_REVIEW_STAGE);
                 const days = intervals[Math.min(nextStage, intervals.length - 1)];
                 const nextDate = new Date();
                 nextDate.setDate(nextDate.getDate() + days);
                 return { stage: nextStage, date: nextDate };
             } else {
-                // Reset to stage 0 on error
                 const resetStage = 0;
                 const days = intervals[0];
                 const nextDate = new Date();
@@ -1199,7 +1339,6 @@
             }
         }
 
-        // Add Question - FIREBASE ONLY
         async function addQuestion() {
             if (!currentUser) {
                 alert('الرجاء تسجيل الدخول أولاً');
@@ -1242,7 +1381,6 @@
             }
         }
 
-        // Load User Data - FROM FIREBASE
         async function loadUserData() {
             if (!currentUser) return;
 
@@ -1278,7 +1416,6 @@
             }
         }
 
-        // Update Subject Distribution
         function updateSubjectDistribution(questions) {
             const subjects = ['أحياء وجيولوجيا', 'كيمياء', 'فيزياء', 'عربي', 'إنجليزي'];
             const container = document.getElementById('subjectDistribution');
@@ -1303,7 +1440,6 @@
             });
         }
 
-        // Load Review Questions - FROM FIREBASE
         async function loadReviewQuestions() {
             if (!currentUser) return;
 
@@ -1378,7 +1514,6 @@
             `;
         }
 
-        // Review Answer - UPDATE FIREBASE DIRECTLY
         async function reviewAnswer(correct) {
             if (!currentReviewQuestion || !currentUser) return;
 
@@ -1390,7 +1525,6 @@
                 lastReviewed: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            // Increase error count if answer is wrong
             if (!correct) {
                 updateData.errorCount = (currentReviewQuestion.errorCount || 0) + 1;
             }
@@ -1405,7 +1539,6 @@
             }
         }
 
-        // Load Gallery - FROM FIREBASE
         async function loadGallery() {
             if (!currentUser) return;
 
@@ -1487,7 +1620,6 @@
             loadGallery();
         }
 
-        // Delete Question - FROM FIREBASE
         async function deleteQuestion(id) {
             if (!confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
 
@@ -1502,7 +1634,6 @@
             }
         }
 
-        // Detailed Statistics - FROM FIREBASE
         async function loadDetailedStats() {
             if (!currentUser) return;
 
@@ -1569,7 +1700,6 @@
             }
         }
 
-        // Note Modal Functions
         function openNoteModal(questionId, questionText, noteText) {
             currentNoteQuestionId = questionId;
             document.getElementById('modalQuestionText').textContent = questionText;
@@ -1603,7 +1733,114 @@
             }
         }
 
-        // Service Worker Registration
+        function toggleHelpChat() {
+            const chat = document.getElementById('helpChat');
+            chat.classList.toggle('show');
+        }
+
+        function showHelp(topic) {
+            const body = document.getElementById('helpChatBody');
+            let message = '';
+
+            switch(topic) {
+                case 'how-to-use':
+                    message = `
+                        <div class="help-message">
+                            <strong>📚 كيفية استخدام التطبيق:</strong><br><br>
+                            1️⃣ <strong>إضافة الأسئلة:</strong> اذهب إلى تبويب "إضافة سؤال" وأدخل السؤال والمادة<br><br>
+                            2️⃣ <strong>المراجعة اليومية:</strong> افتح تبويب "المراجعة" لحل الأسئلة المقررة<br><br>
+                            3️⃣ <strong>متابعة الأسئلة:</strong> استخدم "معرض الأسئلة" لرؤية جميع أسئلتك<br><br>
+                            4️⃣ <strong>الإحصائيات:</strong> تابع تقدمك من تبويب "الإحصائيات"
+                        </div>
+                    `;
+                    break;
+
+                case 'spaced-repetition':
+                    message = `
+                        <div class="help-message">
+                            <strong>🧠 نظام التكرار المتباعد:</strong><br><br>
+                            هو تقنية علمية لتحسين الذاكرة طويلة المدى!<br><br>
+                            📈 <strong>كيف يعمل؟</strong><br>
+                            • عند إتقان السؤال ← يظهر بعد فترة أطول<br>
+                            • عند الخطأ ← يعود للمرحلة الأولى للمراجعة<br><br>
+                            🎯 <strong>المراحل:</strong><br>
+                            المرحلة 1: بعد يوم<br>
+                            المرحلة 2: بعد 3 أيام<br>
+                            المرحلة 3: بعد 7 أيام<br>
+                            المرحلة 4: بعد 14 يوم<br>
+                            المرحلة 5: بعد 30 يوم<br>
+                            المرحلة 6: بعد 60 يوم<br>
+                            المرحلة 7: بعد 90 يوم
+                        </div>
+                    `;
+                    break;
+
+                case 'add-question':
+                    message = `
+                        <div class="help-message">
+                            <strong>➕ إضافة سؤال:</strong><br><br>
+                            1️⃣ اذهب إلى تبويب "إضافة سؤال"<br><br>
+                            2️⃣ اكتب نص السؤال في المربع<br><br>
+                            3️⃣ اختر المادة من القائمة<br><br>
+                            4️⃣ اختر نوع السؤال:<br>
+                            • <strong>مهم:</strong> للأسئلة المهمة<br>
+                            • <strong>خطأ:</strong> للأسئلة التي أخطأت فيها<br><br>
+                            5️⃣ اضغط "إضافة السؤال"<br><br>
+                            ✅ السؤال سيظهر في المراجعة غداً!
+                        </div>
+                    `;
+                    break;
+
+                case 'review-system':
+                    message = `
+                        <div class="help-message">
+                            <strong>🔄 نظام المراجعة:</strong><br><br>
+                            عندما تفتح تبويب "المراجعة":<br><br>
+                            ✅ <strong>أتقنته:</strong> السؤال ينتقل للمرحلة التالية ويظهر بعد فترة أطول<br><br>
+                            ❌ <strong>غلطت:</strong> السؤال يعود للمرحلة الأولى ويظهر بعد يوم واحد<br><br>
+                            💡 <strong>نصيحة:</strong> كن صادقاً مع نفسك! اختر "غلطت" إذا لم تكن متأكداً من الإجابة<br><br>
+                            📊 يمكنك رؤية عدد الأسئلة المتبقية أثناء المراجعة
+                        </div>
+                    `;
+                    break;
+
+                case 'notes':
+                    message = `
+                        <div class="help-message">
+                            <strong>📝 إضافة ملاحظات:</strong><br><br>
+                            1️⃣ اذهب إلى "معرض الأسئلة"<br><br>
+                            2️⃣ اختر أي سؤال واضغط "📝 ملاحظة"<br><br>
+                            3️⃣ اكتب ملاحظتك (مثال: راجع الصفحة 45، تركز على المعادلة...)<br><br>
+                            4️⃣ احفظ الملاحظة<br><br>
+                            ✨ الملاحظات تظهر مع السؤال في المعرض والمراجعة!
+                        </div>
+                    `;
+                    break;
+            }
+
+            body.innerHTML = message + `
+                <button class="help-option-btn" onclick="resetHelpChat()" style="margin-top: 15px; background: var(--accent); color: white;">
+                    ↩️ العودة للقائمة الرئيسية
+                </button>
+            `;
+        }
+
+        function resetHelpChat() {
+            const body = document.getElementById('helpChatBody');
+            body.innerHTML = `
+                <div class="help-message">
+                    مرحباً! 👋 أنا هنا لمساعدتك في استخدام نظام المراجعة الذكية. كيف يمكنني مساعدتك؟
+                </div>
+                <div class="help-options">
+                    <button class="help-option-btn" onclick="showHelp('how-to-use')">📚 كيف أستخدم التطبيق؟</button>
+                    <button class="help-option-btn" onclick="showHelp('spaced-repetition')">🧠 ما هو نظام التكرار المتباعد؟</button>
+                    <button class="help-option-btn" onclick="showHelp('add-question')">➕ كيف أضيف سؤال؟</button>
+                    <button class="help-option-btn" onclick="showHelp('review-system')">🔄 كيف تعمل المراجعة؟</button>
+                    <button class="help-option-btn" onclick="showHelp('notes')">📝 كيف أضيف ملاحظات؟</button>
+                </div>
+            `;
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
@@ -1633,18 +1870,3 @@
     </script>
 </body>
 </html>
-                        <label>نص السؤال</label>
-                        <textarea id="questionText" placeholder="أدخل السؤال هنا..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>المادة</label>
-                        <select id="questionSubject">
-                            <option value="">اختر المادة</option>
-                            <option value="أحياء وجيولوجيا">أحياء وجيولوجيا</option>
-                            <option value="كيمياء">كيمياء</option>
-                            <option value="فيزياء">فيزياء</option>
-                            <option value="عربي">عربي</option>
-                            <option value="إنجليزي">إنجليزي</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
