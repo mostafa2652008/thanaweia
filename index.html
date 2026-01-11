@@ -897,9 +897,11 @@
         /* Voice Recorder */
         .voice-recorder {
             margin-top: 15px;
-            padding: 15px;
-            background: var(--bg-tertiary);
-            border-radius: 10px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 12px;
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(10px);
         }
 
         .voice-recorder-controls {
@@ -907,73 +909,113 @@
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .record-btn {
-            padding: 12px 20px;
+            padding: 14px 24px;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 50px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .record-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .record-btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .record-btn-start {
-            background: var(--danger);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
         }
 
         .record-btn-start:hover {
-            background: #dc2626;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
         }
 
         .record-btn-stop {
-            background: var(--success);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
         }
 
         .record-btn-stop:hover {
-            background: #059669;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
         }
 
         .record-btn-play {
-            background: var(--accent);
+            background: var(--gradient-1);
             color: white;
         }
 
         .record-btn-play:hover {
-            background: var(--accent-hover);
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
         .recording-indicator {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            padding: 12px 20px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--danger);
+            border-radius: 50px;
             color: var(--danger);
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
         }
 
         .recording-dot {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             background: var(--danger);
             border-radius: 50%;
             animation: pulse 1.5s infinite;
+            box-shadow: 0 0 10px var(--danger);
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.3; 
+                transform: scale(0.8);
+            }
         }
 
         .audio-player {
-            margin-top: 10px;
+            margin-top: 15px;
             width: 100%;
+            border-radius: 50px;
+            background: var(--bg-tertiary);
+            padding: 5px;
         }
 
         /* Question Image Display */
@@ -1494,7 +1536,10 @@
                     <div class="form-group" id="chapterGroup" style="display: none;">
                         <label style="display: flex; justify-content: space-between; align-items: center;">
                             <span>الباب/الفصل</span>
-                            <button type="button" class="btn-small" onclick="showAddChapterModal()" style="background: var(--success); color: white; padding: 6px 12px;">+ إضافة باب</button>
+                            <div style="display: flex; gap: 5px;">
+                                <button type="button" class="btn-small" onclick="showAddChapterModal()" style="background: var(--gradient-3); color: white; padding: 6px 12px;">+ إضافة باب</button>
+                                <button type="button" class="btn-small" onclick="showManageChaptersModal()" style="background: var(--gradient-2); color: white; padding: 6px 12px;">⚙️ إدارة الأبواب</button>
+                            </div>
                         </label>
                         <select id="questionChapter">
                             <option value="">اختر الباب</option>
@@ -1529,15 +1574,24 @@
                 <div class="card">
                     <h3>🎨 معرض الأسئلة</h3>
                     
-                    <div class="subject-filter">
-                        <button class="filter-btn active" onclick="filterQuestions('all')">الكل</button>
-                        <button class="filter-btn" onclick="filterQuestions('أحياء')">أحياء</button>
-                        <button class="filter-btn" onclick="filterQuestions('جيولوجيا')">جيولوجيا</button>
-                        <button class="filter-btn" onclick="filterQuestions('كيمياء')">كيمياء</button>
-                        <button class="filter-btn" onclick="filterQuestions('فيزياء')">فيزياء</button>
-                        <button class="filter-btn" onclick="filterQuestions('رياضة')">رياضة</button>
-                        <button class="filter-btn" onclick="filterQuestions('عربي')">عربي</button>
-                        <button class="filter-btn" onclick="filterQuestions('إنجليزي')">إنجليزي</button>
+                    <div style="margin-bottom: 20px;">
+                        <div class="subject-filter">
+                            <button class="filter-btn active" onclick="filterQuestions('all')">الكل</button>
+                            <button class="filter-btn" onclick="filterQuestions('أحياء')">أحياء</button>
+                            <button class="filter-btn" onclick="filterQuestions('جيولوجيا')">جيولوجيا</button>
+                            <button class="filter-btn" onclick="filterQuestions('كيمياء')">كيمياء</button>
+                            <button class="filter-btn" onclick="filterQuestions('فيزياء')">فيزياء</button>
+                            <button class="filter-btn" onclick="filterQuestions('رياضة')">رياضة</button>
+                            <button class="filter-btn" onclick="filterQuestions('عربي')">عربي</button>
+                            <button class="filter-btn" onclick="filterQuestions('إنجليزي')">إنجليزي</button>
+                        </div>
+
+                        <div id="chapterFilterGroup" class="hidden" style="margin-top: 15px;">
+                            <label style="display: block; margin-bottom: 10px; color: var(--text-secondary); font-size: 14px; font-weight: 600;">تصفية حسب الباب:</label>
+                            <div id="chapterFilterButtons" class="subject-filter">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
                     </div>
 
                     <div id="galleryList">
@@ -1688,6 +1742,39 @@
         </div>
     </div>
 
+    <!-- Manage Chapters Modal -->
+    <div id="manageChaptersModal" class="modal-overlay hidden" onclick="closeManageChaptersModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>⚙️ إدارة الأبواب</h3>
+                <button class="modal-close" onclick="closeManageChaptersModal()">×</button>
+            </div>
+            <div id="chaptersListManage">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Chapter Modal -->
+    <div id="editChapterModal" class="modal-overlay hidden" onclick="closeEditChapterModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>✏️ تعديل الباب</h3>
+                <button class="modal-close" onclick="closeEditChapterModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>اسم الباب</label>
+                <input type="text" id="editChapterName" placeholder="مثال: الباب الأول - الخلية">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-success" onclick="updateChapter()" style="flex: 1;">✅ حفظ</button>
+                <button class="btn btn-secondary" onclick="closeEditChapterModal()" style="flex: 1;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Image Fullscreen View -->
     <div id="imageFullscreen" class="image-fullscreen hidden" onclick="closeFullscreenImage()">
         <button class="image-fullscreen-close" onclick="closeFullscreenImage()">×</button>
@@ -1718,6 +1805,7 @@
         // Global State
         let currentUser = null;
         let currentFilter = 'all';
+        let currentChapterFilter = 'all';
         let currentReviewQuestion = null;
         let currentNoteQuestionId = null;
         let choiceCounter = 2;
@@ -1734,6 +1822,8 @@
         let editorCtx = null;
         let editorImage = null;
         let rotationAngle = 0;
+        let currentEditChapterId = null;
+        let allQuestionsCache = [];
 
         // Spaced Repetition Configuration
         const MAX_REVIEW_STAGE = 6;
@@ -2134,6 +2224,108 @@
             } catch (error) {
                 console.error('Save chapter error:', error);
                 alert('❌ حدث خطأ أثناء حفظ الباب: ' + error.message + '\n\nتأكد من الاتصال بالإنترنت.');
+            }
+        }
+
+        async function showManageChaptersModal() {
+            const subject = document.getElementById('questionSubject').value;
+            if (!subject) {
+                alert('⚠️ اختر المادة أولاً');
+                return;
+            }
+
+            document.getElementById('manageChaptersModal').classList.remove('hidden');
+            await loadChaptersForManage(subject);
+        }
+
+        function closeManageChaptersModal(event) {
+            if (event && event.target.id !== 'manageChaptersModal') return;
+            document.getElementById('manageChaptersModal').classList.add('hidden');
+        }
+
+        async function loadChaptersForManage(subject) {
+            const container = document.getElementById('chaptersListManage');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            try {
+                const snapshot = await db.collection('chapters')
+                    .where('userId', '==', currentUser.uid)
+                    .where('subject', '==', subject)
+                    .get();
+
+                if (snapshot.empty) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">لا توجد أبواب لهذه المادة</p>';
+                    return;
+                }
+
+                const html = snapshot.docs.map(doc => {
+                    const chapter = doc.data();
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 10px; border-right: 4px solid var(--accent);">
+                            <span style="font-weight: 600;">${chapter.name}</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-small" onclick="editChapter('${doc.id}', '${chapter.name.replace(/'/g, "\\'")}', '${subject}')" style="background: var(--gradient-3); color: white;">✏️ تعديل</button>
+                                <button class="btn-small btn-danger" onclick="deleteChapter('${doc.id}', '${subject}')">🗑️ حذف</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Load chapters for manage error:', error);
+                container.innerHTML = '<p style="text-align: center; color: var(--danger); padding: 20px;">حدث خطأ في تحميل الأبواب</p>';
+            }
+        }
+
+        function editChapter(chapterId, chapterName, subject) {
+            currentEditChapterId = chapterId;
+            document.getElementById('editChapterName').value = chapterName;
+            document.getElementById('editChapterModal').classList.remove('hidden');
+        }
+
+        function closeEditChapterModal(event) {
+            if (event && event.target.id !== 'editChapterModal') return;
+            document.getElementById('editChapterModal').classList.add('hidden');
+            currentEditChapterId = null;
+        }
+
+        async function updateChapter() {
+            if (!currentEditChapterId) return;
+
+            const newName = document.getElementById('editChapterName').value.trim();
+            if (!newName) {
+                alert('⚠️ أدخل اسم الباب');
+                return;
+            }
+
+            try {
+                await db.collection('chapters').doc(currentEditChapterId).update({
+                    name: newName
+                });
+
+                closeEditChapterModal();
+                const subject = document.getElementById('questionSubject').value;
+                await loadChaptersForManage(subject);
+                await loadChapters();
+                alert('✅ تم تعديل الباب بنجاح');
+            } catch (error) {
+                console.error('Update chapter error:', error);
+                alert('❌ حدث خطأ أثناء التعديل: ' + error.message);
+            }
+        }
+
+        async function deleteChapter(chapterId, subject) {
+            if (!confirm('هل أنت متأكد من حذف هذا الباب؟\n\nملاحظة: لن يتم حذف الأسئلة المرتبطة به')) return;
+
+            try {
+                await db.collection('chapters').doc(chapterId).delete();
+                await loadChaptersForManage(subject);
+                await loadChapters();
+                alert('✅ تم حذف الباب بنجاح');
+            } catch (error) {
+                console.error('Delete chapter error:', error);
+                alert('❌ حدث خطأ أثناء الحذف: ' + error.message);
             }
         }
 
@@ -2644,7 +2836,7 @@
                     .where('userId', '==', currentUser.uid)
                     .get();
 
-                const allQuestions = snapshot.docs.map(doc => ({
+                allQuestionsCache = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 })).sort((a, b) => {
@@ -2653,30 +2845,86 @@
                     return dateB - dateA;
                 });
 
-                displayGalleryQuestions(allQuestions);
+                await loadChapterFilters();
+                displayGalleryQuestions();
             } catch (error) {
                 console.error('Load gallery error:', error);
                 container.innerHTML = '<p style="color: var(--danger);">❌ حدث خطأ في تحميل الأسئلة. تأكد من الاتصال بالإنترنت.</p>';
             }
         }
 
-        async function filterQuestions(subject) {
-            currentFilter = subject;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            await loadGallery();
+        async function loadChapterFilters() {
+            if (currentFilter === 'all') {
+                document.getElementById('chapterFilterGroup').classList.add('hidden');
+                return;
+            }
+
+            try {
+                const snapshot = await db.collection('chapters')
+                    .where('userId', '==', currentUser.uid)
+                    .where('subject', '==', currentFilter)
+                    .get();
+
+                const container = document.getElementById('chapterFilterButtons');
+                
+                if (snapshot.empty) {
+                    document.getElementById('chapterFilterGroup').classList.add('hidden');
+                    return;
+                }
+
+                let html = '<button class="filter-btn active" onclick="filterByChapter(\'all\')">كل الأبواب</button>';
+                
+                snapshot.docs.forEach(doc => {
+                    const chapter = doc.data();
+                    html += `<button class="filter-btn" onclick="filterByChapter('${chapter.name.replace(/'/g, "\\'")}')">` + chapter.name + `</button>`;
+                });
+
+                container.innerHTML = html;
+                document.getElementById('chapterFilterGroup').classList.remove('hidden');
+                currentChapterFilter = 'all';
+            } catch (error) {
+                console.error('Load chapter filters error:', error);
+            }
         }
 
-        function displayGalleryQuestions(allQuestions) {
+        async function filterQuestions(subject) {
+            currentFilter = subject;
+            currentChapterFilter = 'all';
+            
+            document.querySelectorAll('.subject-filter .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            await loadChapterFilters();
+            displayGalleryQuestions();
+        }
+
+        function filterByChapter(chapter) {
+            currentChapterFilter = chapter;
+            
+            document.querySelectorAll('#chapterFilterButtons .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            displayGalleryQuestions();
+        }
+
+        function displayGalleryQuestions() {
             const container = document.getElementById('galleryList');
-            const filtered = currentFilter === 'all' 
-                ? allQuestions 
-                : allQuestions.filter(q => q.subject === currentFilter);
+            let filtered = allQuestionsCache;
+
+            // Filter by subject
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(q => q.subject === currentFilter);
+            }
+
+            // Filter by chapter
+            if (currentChapterFilter !== 'all') {
+                filtered = filtered.filter(q => q.chapter === currentChapterFilter);
+            }
 
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <p>لا توجد أسئلة${currentFilter !== 'all' ? ' في هذه المادة' : ''}</p>
+                        <p>لا توجد أسئلة${currentFilter !== 'all' ? ' في هذه المادة' : ''}${currentChapterFilter !== 'all' ? ' في هذا الباب' : ''}</p>
                     </div>
                 `;
                 return;
@@ -2735,7 +2983,7 @@
                         <div class="question-header">
                             <div class="question-badges">
                                 <span class="badge badge-subject">${q.subject}</span>
-                                ${q.chapter ? `<span class="badge" style="background: var(--success);">${q.chapter}</span>` : ''}
+                                ${q.chapter ? `<span class="badge" style="background: var(--gradient-3);">${q.chapter}</span>` : ''}
                                 ${q.type === 'خطأ' ? '<span class="badge badge-error">خطأ</span>' : '<span class="badge badge-important">مهم</span>'}
                                 <span class="badge" style="background: ${performanceColor};">المرحلة ${q.reviewStage + 1}</span>
                                 <span class="badge" style="background: ${performanceColor};">${performanceLevel}</span>
