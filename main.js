@@ -1,13 +1,13 @@
 
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDBVpn-vbthc5MFoVD3bwocGgc3kSI3E9g",
-            authDomain: "thanweia.firebaseapp.com",
-            projectId: "thanweia",
-            storageBucket: "thanweia.firebasestorage.app",
-            messagingSenderId: "817290566986",
-            appId: "1:817290566986:web:1330c6236d1106ab9075b3",
-            measurementId: "G-ZNH2RJZRN0"
+        apiKey: "AIzaSyAYWc_v9yU3MznJK6mjwT4sXMQkYB_1FIM",
+    authDomain: "thanaweia.firebaseapp.com",
+    projectId: "thanaweia",
+    storageBucket: "thanaweia.firebasestorage.app",
+    messagingSenderId: "11554029152",
+    appId: "1:11554029152:web:4c809b1e8fa57af2454d05",
+    measurementId: "G-3YR6NPJ0VE"
         };
 
         firebase.initializeApp(firebaseConfig);
