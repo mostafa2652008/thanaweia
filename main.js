@@ -1,7 +1,6 @@
-
-        // Firebase Configuration
+// Firebase Configuration
         const firebaseConfig = {
-        apiKey: "AIzaSyAYWc_v9yU3MznJK6mjwT4sXMQkYB_1FIM",
+    apiKey: "AIzaSyAYWc_v9yU3MznJK6mjwT4sXMQkYB_1FIM",
     authDomain: "thanaweia.firebaseapp.com",
     projectId: "thanaweia",
     storageBucket: "thanaweia.firebasestorage.app",
@@ -272,14 +271,70 @@
             const file = event.target.files[0];
             if (!file) return;
 
+            // عرض حجم الملف الأصلي
+            const fileSizeKB = (file.size / 1024).toFixed(2);
+            console.log(`حجم الصورة الأصلي: ${fileSizeKB} KB`);
+
             currentImageFile = file;
             const reader = new FileReader();
             reader.onload = (e) => {
-                currentImageDataUrl = e.target.result;
-                document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('imagePreview').classList.remove('hidden');
+                compressImage(e.target.result, (compressedDataUrl) => {
+                    currentImageDataUrl = compressedDataUrl;
+                    document.getElementById('previewImg').src = compressedDataUrl;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                    
+                    // عرض حجم الصورة بعد الضغط
+                    const compressedSizeKB = ((compressedDataUrl.length * 3) / 4 / 1024).toFixed(2);
+                    console.log(`حجم الصورة بعد الضغط: ${compressedSizeKB} KB`);
+                    
+                    // تنبيه إذا كانت الصورة لا تزال كبيرة
+                    if (compressedSizeKB > 500) {
+                        console.warn('⚠️ الصورة كبيرة نسبياً. قد يستغرق الحفظ وقتاً أطول.');
+                    }
+                });
             };
             reader.readAsDataURL(file);
+        }
+
+        // دالة ضغط الصور
+        function compressImage(dataUrl, callback, quality = 0.7, maxWidth = 1200, maxHeight = 1200) {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // حساب الأبعاد الجديدة مع الحفاظ على النسبة
+                if (width > maxWidth || height > maxHeight) {
+                    const aspectRatio = width / height;
+                    if (width > height) {
+                        width = maxWidth;
+                        height = width / aspectRatio;
+                    } else {
+                        height = maxHeight;
+                        width = height * aspectRatio;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // ضغط الصورة
+                let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                
+                // إذا كانت الصورة لا تزال كبيرة جداً (أكثر من 800KB)
+                const sizeInKB = (compressedDataUrl.length * 3) / 4 / 1024;
+                if (sizeInKB > 800 && quality > 0.3) {
+                    // محاولة ضغط أكثر
+                    compressImage(dataUrl, callback, quality - 0.1, maxWidth, maxHeight);
+                } else {
+                    callback(compressedDataUrl);
+                }
+            };
+            img.src = dataUrl;
         }
 
         function removeImage() {
@@ -350,9 +405,12 @@
         function saveEditedImage() {
             if (!editorCanvas) return;
 
-            currentImageDataUrl = editorCanvas.toDataURL('image/jpeg', 0.9);
-            document.getElementById('previewImg').src = currentImageDataUrl;
-            closeImageEditor();
+            const tempDataUrl = editorCanvas.toDataURL('image/jpeg', 0.9);
+            compressImage(tempDataUrl, (compressedDataUrl) => {
+                currentImageDataUrl = compressedDataUrl;
+                document.getElementById('previewImg').src = compressedDataUrl;
+                closeImageEditor();
+            });
         }
 
         function closeImageEditor() {
@@ -797,6 +855,12 @@
                 correctAnswerIndex = validIndices.indexOf(correctAnswerIndex);
             }
 
+            // Show loading indicator
+            const addBtn = event.target;
+            const originalText = addBtn.textContent;
+            addBtn.textContent = '⏳ جاري الحفظ...';
+            addBtn.disabled = true;
+
             try {
                 const nextReview = new Date();
                 nextReview.setDate(nextReview.getDate() + 1);
@@ -852,11 +916,21 @@
                 `;
                 choiceCounter = 2;
                 
+                addBtn.textContent = originalText;
+                addBtn.disabled = false;
+                
                 alert('✅ تم إضافة السؤال بنجاح!');
                 await loadUserData();
             } catch (error) {
                 console.error('Add question error:', error);
-                alert('❌ حدث خطأ أثناء إضافة السؤال. تأكد من الاتصال بالإنترنت.');
+                addBtn.textContent = originalText;
+                addBtn.disabled = false;
+                
+                if (error.code === 'resource-exhausted') {
+                    alert('❌ الصورة كبيرة جداً. حاول استخدام صورة أصغر حجماً.');
+                } else {
+                    alert('❌ حدث خطأ أثناء إضافة السؤال. تأكد من الاتصال بالإنترنت.\n\nالخطأ: ' + error.message);
+                }
             }
         }
 
